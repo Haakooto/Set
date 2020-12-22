@@ -43,5 +43,4 @@ with open("id_backup.csv", "w") as file:
     for id in lst[1:]:
         file.write(f",{id}")
 
-
 plt.show()
