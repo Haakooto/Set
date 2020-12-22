@@ -9,12 +9,10 @@ def mouse_click_event(event):
         if ax.contains(event)[0]:  # if click in ax
             Game.click(i)
     Game.update()
-    # plt.draw()
 
 
 def on_move_event(event):
     Game.update()
-    # plt.draw()
 
 
 def key_press_event(event):
@@ -23,7 +21,6 @@ def key_press_event(event):
     if event.key == "r":
         print("Responsive")
     Game.update()
-    # plt.draw()
 
 
 fig, axs = plt.subplots(nrows=4, ncols=4)
