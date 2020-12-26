@@ -175,7 +175,8 @@ class Card(DrawingArea):
                 for f in range(1, 4):
                     for n in range(1, 4):
                         deck.append(Card(c, s, f, n))
-        return np.random.shuffle(deck)
+        np.random.shuffle(deck)
+        return deck
 
     @staticmethod
     def id_list(deck):
