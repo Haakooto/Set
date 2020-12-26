@@ -1,0 +1,18 @@
+Intention guide for Set
+
+Hosted on bror.tips there is a continously running file, server.py.
+When running playSet.py on your laptop you will join a game hosted there
+commandlinearguments can specify if you want to start a new, own game, or join an existing one.
+By default you should start a new if there are no other, and join one running if there are. (criteria for which one if multiple is to be worked out later)
+You also give a name in commandline. If no name given, or if someone in game already has that, a generic name is assigned
+
+When you make a game/ join one not started you see white screen, maybe with text, and backside of deck in slot 15
+when deck is clicked, game starts and board is filled
+Later, a tutorial mode can be made
+player can join midgame
+players joining, current scores and other info is printed in terminal
+Game progress as normal
+When all cards are used, player with most points is decleared winner, everyone is kicked, and game disconnected
+Is easy to start new one
+
+The last card game will not be implemented in v1, but added later, and made optional, but default

@@ -76,8 +76,8 @@ class Card(DrawingArea):
         sum is 0 is self, this and that form set
         """
         ids = self._id + this._id + that._id
-        set = sum(ids % 3)
-        return not set
+        isset = sum(ids % 3)
+        return not isset
 
     def make_blobs(self, ax):
         # Takes in axes-object to transform correctly within axes
@@ -139,8 +139,8 @@ class Card(DrawingArea):
             patches.append(copy(patch))
             up = Affine2D().translate(0, 0.3)
             down = Affine2D().translate(0, -0.3)
-            # Middle one is rotated. Only visible for arrow
             rot = Affine2D().rotate_deg_around(0.5, 0.5, 180)
+            # Middle one is rotated. Effect only visible for non-symmetric arrow
             patches[0].set_transform(up + ax.transData)
             patches[1].set_transform(down + ax.transData)
             patches[2].set_transform(rot + ax.transData)
@@ -172,8 +172,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     try:
         A = sys.argv[1]
-        c, s, f, n = [int(i) for i in A]
-        C = Card(c, s, f, n)
+        C = Card(*[int(i) for i in A])
     except:
         C = Card(1, 1, 1, 1)
     C.make_blobs(ax)
