@@ -1,5 +1,6 @@
 import socket
 import pickle
+from matplotlib.pyplot import close
 
 
 class NetworkManager:
@@ -14,7 +15,7 @@ class NetworkManager:
     Change port when its taken
     ServerIP and port must be same as in server.py
     """
-    def __init__(self, server="192.168.1.34", port=5555):
+    def __init__(self, server, port):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
@@ -41,4 +42,4 @@ class NetworkManager:
             if ret:
                 return pickle.loads(ret)
         except:
-            raise
+            close()
