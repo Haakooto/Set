@@ -20,6 +20,7 @@ except:
 Use -n and -g in comandline to request name and game to join. see server.py
 """
 
+
 # events to call for update
 def mouse_click_event(event):
     for i, ax in enumerate(axs):
@@ -30,7 +31,7 @@ def mouse_click_event(event):
 
 def on_move_event(event):
     Me.update()
-
+    # pass
 
 def key_press_event(event):
     if event.key == "h":  # cheat
@@ -51,5 +52,6 @@ fig.canvas.mpl_connect("motion_notify_event", on_move_event)
 fig.canvas.mpl_connect("key_press_event", key_press_event)
 
 Me = Player(axs, name, gameid)
+Me.update()
 
 plt.show()
