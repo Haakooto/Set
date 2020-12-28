@@ -15,7 +15,7 @@ class Player:
 
     def __init__(self, axs, server, port, name, game):
 
-        self.NM = NetworkManager(server, port)
+        self.NM = NetworkManager(self, server, port)
         game, name = self.NM.connect(game, name)
         valid_gid, self.game = game  # name and game_id is subject to change if not valid
         valid_name, self.name = name
@@ -65,7 +65,12 @@ class Player:
             self.numerator, cards, table, other_msg = self.NM.send("gimme_news")
             self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
             self.draw()
-            self.print(table)
+            table = {i: table[i] for i in sorted(table, key=lambda x: table[x])[::-1]}
+            if table != self.table:
+                self.table = table
+                self.print()
+            if other_msg is not None:
+                print(other_msg)
 
     def click(self, i):
         """
@@ -127,18 +132,23 @@ class Player:
         self.numerate(self.numerator)
         mpl.pyplot.draw()
 
-    def print(self, table):
+    def print(self, winner=False):
         " Print nice leaderboard table "
-        table = {i: table[i] for i in sorted(table, key=lambda x: table[x])[::-1]}
-        if table == self.table:
-            return 0
-        self.table = table
-        out = f"\n|{'Player':<20}|{'Points':^6}|\n"
-        out += "_"*len(out) + "\n"
-        for plr, pts in self.table.items():
-            out += f"|{plr:^25}|{pts:^8}|\n"
+        if winner:
+            out = f"\n{'Final scoreboard:':^25}|{'Points':^6}\n"
+        else:
+            out = f"\n{'Scoreboard':^25}|{'Points':^6}\n"
+        out += "_" * 25 + "|" + "_" * 6 + "\n"
+        for i, item in enumerate(self.table.items()):
+            plr, pts = item
+            if winner and not i:
+                plr += " (WINNER!!!)"
+            if plr == self.name:
+                plr += " (YOU)"
+            out += f"{plr:<25}|{pts:^6}\n"
         out += "\n"
         print(out)
+
 
     def numerate(self, N):
         # Say how many cards left in deck
@@ -162,3 +172,6 @@ class Player:
                 print("No sets on board")
             else:
                 print(*reply)
+
+    def call_winner(self):
+        self.print(True)
