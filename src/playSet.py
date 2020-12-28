@@ -15,9 +15,20 @@ try:
     gameid = cmd[gidx + 1]
 except:
     gameid = None
+try:
+    pidx = cmd.index("-p")
+    port = int(cmd[pidx + 1])
+except:
+    port = 5555
+try:
+    sidx = cmd.index("-s")
+    server = cmd[sidx + 1]
+except:
+    server = "192.168.1.34"
 
 """
-Use -n and -g in comandline to request name and game to join. see server.py
+Use -n and -g in commandline to request name and game to join. see server.py
+Use -s and -p in commandline to set server_IP and port to search for server at
 """
 
 
@@ -38,6 +49,8 @@ def key_press_event(event):
         Me.get_if_set_on_board()
     if event.key == "r":
         print("Responsive")
+    if event.key == "g":
+        plt.close()
     Me.update()
 
 
@@ -51,7 +64,7 @@ fig.canvas.mpl_connect("button_press_event", mouse_click_event)
 fig.canvas.mpl_connect("motion_notify_event", on_move_event)
 fig.canvas.mpl_connect("key_press_event", key_press_event)
 
-Me = Player(axs, name, gameid)
+Me = Player(axs, server, port, name, gameid)
 Me.update()
 
 plt.show()
