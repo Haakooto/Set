@@ -9,11 +9,13 @@ class Game:
     """
     def __init__(self, id):
         self.id = id  # game_id given by server
+        self.inactive = 0
         self.deck = Card.generate_deck()
         self.active = [None for i in range(15)]  # idxs if card in deck which should be on the board
         self.started = False  # False while waiting for players
         self.used_cards = 0  # how many Cards pulled from deck
         self.other_msg = None
+        self.extra = False
 
     def __str__(self):
         return str(self.id)
@@ -44,6 +46,7 @@ class Game:
 
     def add_extra(self):
         # Extend active if no set on board
+        self.extra = True
         for i in range(3):
             self.add_card(i + 12, True)
 
@@ -52,6 +55,7 @@ class Game:
             if card is not None:
                 self.active[self.active.index(None)] = card
                 self.active[i] = None
+                self.extra = False
 
     def validate_set(self, idxs, player=False):
         # check if cards at indices in idxs form set
@@ -78,6 +82,8 @@ class Game:
                         else:
                             return True
         if check:  # if called by player clicking deck and no sets on board:
-            self.add_extra()  # add 3 extra
-        # ! If not set on board while 3 extra are already there WILL cause problems. Handle this!
+            if self.extra:
+                self.other_msg = ""
+            else:
+                self.add_extra()  # add 3 extra
         return False
