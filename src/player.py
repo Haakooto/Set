@@ -15,7 +15,7 @@ class Player:
 
     def __init__(self, axs, name, game):
         self.NM = NetworkManager()
-        game, name, self.deck = self.NM.connect(game, name)
+        game, name = self.NM.connect(game, name)
         valid_gid, self.game = game  # name and game_id is subject to change if not valid
         valid_name, self.name = name
 
@@ -57,12 +57,12 @@ class Player:
                 return child
 
     def update(self):
+        # print("update", time.time())
         if not self.started:  # query the server for start of game
             self.started = self.NM.send("started?")
         else:  # recieve new data, print leaderboard and draw cards on board
-            self.numerator, cards, table = self.NM.send("gimme_news")
-            self.active = [Card(int(i) for i in id) for id in cards]
-            print(self.active)
+            self.numerator, cards, table, other_msg = self.NM.send("gimme_news")
+            self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
             self.draw()
             self.print(table)
 
@@ -71,8 +71,8 @@ class Player:
         called when player clicks card
         """
         if i == 15:
-            if self.active == []:  # Start game by clicking deck
-                self.NM.send("start")
+            if not self.started:  # Start game by clicking deck
+                self.started = self.NM.send("start")
             elif self.NM.send("no_set_on_board"):  # claim no sets are left on board
                 print("You have successfully found that there is no set on the current board.\nPoint given!")
             else:
@@ -81,35 +81,47 @@ class Player:
         elif self.get_card(i) is not None:  # make sure axes actuall has card in it
             if i in self.clicked:
                 self.clicked.remove(i)
-                self.get_border(i).set_color("white")
+                # self.get_border(i).set_edgecolor("k")
             else:
                 self.clicked.append(i)
-                self.get_border(i).set_color("r")
+                # self.get_border(i).set_edgecolor("r")
         if len(self.clicked) == 3:
             if self.NM.send(self.clicked):
                 print("That was a Set.\nPoint given!")
             else:
                 print("That was NOT a Set.\nPenalty given!")
+            # for
+            self.clicked = []
+        self.update()
 
     def draw(self):  # draw the board (place card on board)
-        i = 0  # is nessisary for before game start
         for i, card in enumerate(self.active):
-            old = self.get_card(i)
-            if old.is_same(card):
-                continue  # dont bother replacing card with itself
+            if card is None:
+                self.get_border(i).set_edgecolor("white")
+                if (card_ := self.get_card(i)) is not None:
+                    card_.remove()
             else:
-                self.get_card(i).remove()
-                ax = self.get_ax(i)
-                card.make_blobs(ax)
-                ax.add_artist(card)
-                if (border := self.get_border(ax)).get_color == "r":
-                    border.set_color("k")
-                    self.clicked.remove(i)
+                if (old := self.get_card(i)) is not None:
+                    if old.is_same(card):
+                        pass
+                    else:
+                        ax = self.get_ax(i)
+                        self.get_card(ax).remove()
+                        card.make_blobs(ax)
+                        ax.add_artist(card)
 
-        for j in range(i, 15):
-            self.get_border(j).set_color("white")
-            if (card := self.get_card(j)) is not None:
-                card.remove()
+                        if i in self.clicked:
+                            self.clicked.remove(i)
+                else:
+                    ax = self.get_ax(i)
+                    card.make_blobs(ax)
+                    ax.add_artist(card)
+
+                border = self.get_border(i)
+                if i in self.clicked:
+                    border.set_edgecolor("r")
+                else:
+                    border.set_edgecolor("k")
 
         self.numerate(self.numerator)
         mpl.pyplot.draw()
@@ -120,9 +132,9 @@ class Player:
         if table == self.table:
             return 0
         self.table = table
-        out = f"\n|{'Player':^25}|{'Points':^8}|\n"
+        out = f"\n|{'Player':<20}|{'Points':^6}|\n"
         out += "_"*len(out) + "\n"
-        for plr, pts in self.table:
+        for plr, pts in self.table.items():
             out += f"|{plr:^25}|{pts:^8}|\n"
         out += "\n"
         print(out)
@@ -142,4 +154,10 @@ class Player:
         ax.add_artist(at)
 
     def get_if_set_on_board(self):
-        print(*self.NM.send("set_on_board?"))
+        if self.started:
+            reply = self.NM.send("set_on_board?")
+            print(reply)
+            if not reply:
+                print("No sets on board")
+            else:
+                print(*reply)
