@@ -24,7 +24,8 @@ except socket.error as e:
     raise
 
 s.listen()
-print("Server started. Waiting for connections...\n")
+print("Server started. Waiting for connections...")
+print(f"Can be found at IP = {server}, port = {port}\n")
 
 active_games = {}
 # keys are game_ids. Values are dicts with 2 keys. "game" and "players". Last have dict with name and score as items. First is Game-instance
