@@ -14,12 +14,12 @@ class NetworkManager:
     Change port when its taken
     ServerIP and port must be same as in server.py
     """
-    def __init__(self, server="192.168.1.34", port=5558):
+    def __init__(self, server="192.168.1.34", port=5555):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
         self.addr = (self.server, self.port)
-        self.packet_size = 2048
+        self.packet_size = 2 ** 12
 
     def connect(self, game, name):
         """
@@ -29,7 +29,7 @@ class NetworkManager:
             self.client.connect(self.addr)
             return self.send((game, name))
         except socket.error as e:
-            print(e)
+            raise
 
     def send(self, data):
         """
@@ -40,10 +40,5 @@ class NetworkManager:
             ret = self.client.recv(self.packet_size)
             if ret:
                 return pickle.loads(ret)
-            # print(ret)
-            # print(pickle.loads(ret))
-            # return pickle.loads(self.client.recv(self.packet_size))  # Ideally only this line if needed after 'self.client.send...'
-            # # But because of problems, different things have been tried. (This is the location of the bug. And not nessisarily the cause of said bug)
-        except socket.error as e:
-            print("\n\nThere was an error in sending/recieving from server")
-            print(e)
+        except:
+            raise
