@@ -15,7 +15,8 @@ class NetworkManager:
     Change port when its taken
     ServerIP and port must be same as in server.py
     """
-    def __init__(self, server, port):
+    def __init__(self, player, server, port):
+        self.player = player
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
@@ -42,4 +43,5 @@ class NetworkManager:
             if ret:
                 return pickle.loads(ret)
         except:
+            self.player.call_winner()
             close()
