@@ -13,8 +13,9 @@ class Player:
     recieves current cards on the board from server through NetworkManager and places them on board
     """
 
-    def __init__(self, axs, name, game):
-        self.NM = NetworkManager()
+    def __init__(self, axs, server, port, name, game):
+
+        self.NM = NetworkManager(server, port)
         game, name = self.NM.connect(game, name)
         valid_gid, self.game = game  # name and game_id is subject to change if not valid
         valid_name, self.name = name
