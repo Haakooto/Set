@@ -87,9 +87,12 @@ def thread_client(conn, name, id):
             break
     print(f"Lost connection to '{name}' in '{id}'")
     try:
-        del active_games[id]["players"][name]
-        if not len(active_games[id]["players"]):
+        # name += " (disconnected)"
+        active_games[id]["players"][name + " (disconnected)"] = active_games[id]["players"].pop(name)
+        active_games[id]["game"].inactive += 1
+        if len(active_games[id]["players"]) == active_games[id]["game"].inactive:
             print(f"No players left in '{id}'. closing game.")
+            del active_games[id]["players"]
             del active_games[id]["game"]
             del active_games[id]
     except:
