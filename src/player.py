@@ -62,7 +62,9 @@ class Player:
         if not self.started:  # query the server for start of game
             self.started = self.NM.send("started?")
         else:  # recieve new data, print leaderboard and draw cards on board
-            self.numerator, cards, table, other_msg = self.NM.send("gimme_news")
+            numerator, cards, table, other_msg = self.NM.send("gimme_news")
+            if numerator is not None:
+                self.numerator = numerator
             self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
             self.draw()
             table = {i: table[i] for i in sorted(table, key=lambda x: table[x])[::-1]}
