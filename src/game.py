@@ -33,7 +33,10 @@ class Game:
     def add_card(self, i, extra=False):
         """ adds new card to actives """
         if sum([j is not None for j in self.active]) <= 12 or extra:
+            # print(self.active)
             self.active[i] = self.used_cards  # simple replace
+            # print(self.active)
+            # print()
             if self.used_cards == 81:
                 self.used_cards = None
             else:
