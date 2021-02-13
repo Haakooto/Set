@@ -114,7 +114,7 @@ class Player:
             else:
                 # if (old := self.get_card(i)) is not None:
                     # if old.is_same(card):
-                old = self.card(i)
+                old = self.get_card(i)
                 if old is not None:
                     if old.is_same(card):
                         pass
