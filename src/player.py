@@ -108,7 +108,7 @@ class Player:
                 self.get_border(i).set_edgecolor("white")
                 # if (card_ := self.get_card(i)) is not None:
                     # card_.remove()
-                card_ = self.card(i)
+                card_ = self.get_card(i)
                 if card_ is not None:
                     card_.remove()
             else:
