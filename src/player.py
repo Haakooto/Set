@@ -106,10 +106,16 @@ class Player:
         for i, card in enumerate(self.active):
             if card is None:
                 self.get_border(i).set_edgecolor("white")
-                if (card_ := self.get_card(i)) is not None:
+                # if (card_ := self.get_card(i)) is not None:
+                    # card_.remove()
+                card_ = self.card(i)
+                if card_ is not None:
                     card_.remove()
             else:
-                if (old := self.get_card(i)) is not None:
+                # if (old := self.get_card(i)) is not None:
+                    # if old.is_same(card):
+                old = self.card(i)
+                if old is not None:
                     if old.is_same(card):
                         pass
                     else:
