@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from card import AxBorder
 from player import Player
 import sys
+from threading import Thread
 
 
 cmd = sys.argv[1:]
@@ -19,12 +20,12 @@ try:
     pidx = cmd.index("-p")
     port = int(cmd[pidx + 1])
 except:
-    port = 5555
+    port = 5500
 try:
     sidx = cmd.index("-s")
     server = cmd[sidx + 1]
 except:
-    server = "192.168.1.34"
+    server = "192.168.0.1"
 
 """
 Use -n and -g in commandline to request name and game to join. see server.py
@@ -53,6 +54,14 @@ def key_press_event(event):
         plt.close()
     Me.update()
 
+def say(name):
+    """
+    Start of chat system to be implemented later
+    """
+    while True:
+        a = input()
+        print(a)
+
 
 fig, axs = plt.subplots(nrows=4, ncols=4)
 axs = axs.flatten()
@@ -66,5 +75,8 @@ fig.canvas.mpl_connect("key_press_event", key_press_event)
 
 Me = Player(axs, server, port, name, gameid)
 Me.update()
+
+talker = Thread(target=say, args=(Me.name,))
+talker.start()
 
 plt.show()
