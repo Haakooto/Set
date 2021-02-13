@@ -1,7 +1,6 @@
 import socket
 from _thread import start_new_thread as SNT
 from game import Game
-# from card import Card
 import time
 import pickle
 
@@ -9,11 +8,10 @@ import pickle
 """
 Server to connect players and recieve and give updates on game
 Mostly ripped off from https://www.youtube.com/watch?v=McoDjOCb2Zo (theres a github to find the code)
-(Havent exteded for real online. will only work for devices on same network)
 """
 
-server = "192.168.1.34"  # set to ip of host device. Must be same as in network.py
-port = 5555  # 5555 should be free. increase by 1 when its not (stop this file with ctrl+c NOT ctrl+d. will not free port properly)
+server = "192.168.0.15"  # set to ip of host device.
+port = 5016
 package_size = 2 ** 12
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
