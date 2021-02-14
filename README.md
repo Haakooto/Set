@@ -22,3 +22,4 @@ Digitalized version of the card game Set from 1974. Using interactive, clickable
 - Suggetions/bug-rapporting
 - Pizza delivery
 - Tournament mode
+- play again in same game
