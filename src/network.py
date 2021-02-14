@@ -5,15 +5,10 @@ from matplotlib.pyplot import close
 
 class NetworkManager:
     """
-    Player-side controller of network shit.
+    Client-side socket-controller
     Makes connection with server
     Sends and recieves data
 
-    Currently only works for servers and players on same network. Figure out how to make online
-    Set server IP to relevant shit.
-    Port 5555 should be default
-    Change port when its taken
-    ServerIP and port must be same as in server.py
     """
     def __init__(self, player, server, port):
         self.player = player

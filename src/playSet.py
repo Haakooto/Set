@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from card import AxBorder
 from player import Player
 import sys
-from threading import Thread
+from threading import Thread, Lock
 
 
 cmd = sys.argv[1:]
@@ -20,12 +20,12 @@ try:
     pidx = cmd.index("-p")
     port = int(cmd[pidx + 1])
 except:
-    port = 5500
+    port = 5016
 try:
     sidx = cmd.index("-s")
     server = cmd[sidx + 1]
 except:
-    server = "192.168.0.1"
+    server = "192.168.0.15"
 
 """
 Use -n and -g in commandline to request name and game to join. see server.py
@@ -43,7 +43,8 @@ def mouse_click_event(event):
 
 def on_move_event(event):
     Me.update()
-    # pass
+    pass
+
 
 def key_press_event(event):
     if event.key == "h":  # cheat
@@ -51,8 +52,10 @@ def key_press_event(event):
     if event.key == "r":
         print("Responsive")
     if event.key == "g":
-        plt.close()
+        print(Me.active)
+        # plt.close()
     Me.update()
+
 
 def say(name):
     """
@@ -76,7 +79,8 @@ fig.canvas.mpl_connect("key_press_event", key_press_event)
 Me = Player(axs, server, port, name, gameid)
 Me.update()
 
-talker = Thread(target=say, args=(Me.name,))
-talker.start()
+# talker = Thread(target=say, args=(Me.name,))
+# talker.start()
 
 plt.show()
+# talker.join(timeout=1)

@@ -78,7 +78,7 @@ class Card(DrawingArea):
         assert isinstance(other, Card)
         return self.id == other.id
 
-    def is_set(self, this, that):
+    def form_set(self, this, that):
         """
         Value for each category is labeled 1,2,3
         Sum of values of one category of three cards
@@ -86,7 +86,7 @@ class Card(DrawingArea):
         if all category sums are divisible by three
         the mod of all separately is 0.
 
-        ._id is array with each category, so mod work elementwise
+        _id is array with each category, and the mod operates elementwise
         sum is 0 only if self, this and that form set
         """
         ids = self._id + this._id + that._id

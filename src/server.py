@@ -7,7 +7,6 @@ import pickle
 
 """
 Server to connect players and recieve and give updates on game
-Mostly ripped off from https://www.youtube.com/watch?v=McoDjOCb2Zo (theres a github to find the code)
 """
 
 server = "192.168.0.15"  # set to ip of host device.
@@ -85,7 +84,6 @@ def thread_client(conn, name, id):
             break
     print(f"Lost connection to '{name}' in '{id}'")
     try:
-        # name += " (disconnected)"
         active_games[id]["players"][name + " (disconnected)"] = active_games[id]["players"].pop(name)
         active_games[id]["game"].inactive += 1
         if len(active_games[id]["players"]) == active_games[id]["game"].inactive:

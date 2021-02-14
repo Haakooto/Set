@@ -7,7 +7,9 @@ class Game:
     Controlls the current Cards on the board
 
     """
+
     def __init__(self, id):
+        """ Init game with deck of cards """
         self.id = id  # game_id given by server
         self.inactive = 0
         self.deck = Card.generate_deck()
@@ -31,41 +33,41 @@ class Game:
         return self.started
 
     def add_card(self, i, extra=False):
-        """ adds new card to actives """
+        """
+        removes and adds cards to board.
+
+        Cards on board exist in list, index in list correspond to place on board
+        Normally replaces the card at relavent index
+        Can also extend board to 15 cards if needed
+        """
         if sum([j is not None for j in self.active]) <= 12 or extra:
-            # print(self.active)
-            self.active[i] = self.used_cards  # simple replace
-            # print(self.active)
-            # print()
+            self.active[i] = self.used_cards
             if self.used_cards == 81:
                 self.used_cards = None
             else:
                 self.used_cards += 1
         else:
-            self.active[i] = None  # remove without replace if too many
-            # This solution will shift all cards on board after removed ones
-            # May cause slight confusion for some players. No problem of mine ¯\_(ツ)_/¯
-            # (yet)
+            self.active[i] = None
 
     def add_extra(self):
-        # Extend active if no set on board
+        """When no set on board, add 3 more cards """
         self.extra = True
         for i in range(3):
-            self.add_card(i + 12, True)
+            self.add_card(12 + i, True)
 
     def move(self):
         for i, card in enumerate(self.active[12:]):
             if card is not None:
                 self.active[self.active.index(None)] = card
-                self.active[i] = None
+                self.active[i + 12] = None
                 self.extra = False
 
     def validate_set(self, idxs, player=False):
-        # check if cards at indices in idxs form set
+        # check if cards at given indices form set
         # Is called to check if set even on board, or if player clicks 3 cards.
-        # If called from player, also replace card if the form set
+        # If called by player, then replace cards if they form set
         a, b, c = [self.deck[self.active[i]] for i in idxs]
-        valid = a.is_set(b, c)
+        valid = a.form_set(b, c)
         if valid and player:
             for n in idxs:
                 self.add_card(n)
@@ -86,7 +88,7 @@ class Game:
                             return True
         if check:  # if called by player clicking deck and no sets on board:
             if self.extra:
-                self.other_msg = ""
+                self.other_msg = ""  # should tell players game is over. board is full, and no sets
             else:
                 self.add_extra()  # add 3 extra
         return False

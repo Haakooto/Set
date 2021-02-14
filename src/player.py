@@ -58,7 +58,6 @@ class Player:
                 return child
 
     def update(self):
-        # print("update", time.time())
         if not self.started:  # query the server for start of game
             self.started = self.NM.send("started?")
         else:  # recieve new data, print leaderboard and draw cards on board
@@ -89,16 +88,13 @@ class Player:
         elif self.get_card(i) is not None:  # make sure axes actuall has card in it
             if i in self.clicked:
                 self.clicked.remove(i)
-                # self.get_border(i).set_edgecolor("k")
             else:
                 self.clicked.append(i)
-                # self.get_border(i).set_edgecolor("r")
         if len(self.clicked) == 3:
             if self.NM.send(self.clicked):
                 print("That was a Set.\nPoint given!")
             else:
                 print("That was NOT a Set.\nPenalty given!")
-            # for
             self.clicked = []
         self.update()
 
@@ -106,8 +102,11 @@ class Player:
         for i, card in enumerate(self.active):
             if card is None:
                 self.get_border(i).set_edgecolor("white")
+
+                # syntax only valid in python3.9 (whalrus operator)
                 # if (card_ := self.get_card(i)) is not None:
                     # card_.remove()
+
                 card_ = self.get_card(i)
                 if card_ is not None:
                     card_.remove()
@@ -156,7 +155,6 @@ class Player:
             out += f"{plr:<25}|{pts:^6}\n"
         out += "\n"
         print(out)
-
 
     def numerate(self, N):
         # Say how many cards left in deck
