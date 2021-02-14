@@ -1,6 +1,6 @@
 # Set
 
-Digitalized version of the card game Set from 1974. Using interactive, clickable Matplotlib window for cards, and terminal for status updates/ leaderboard. Play online against friends! Current version only works when players are on same network.
+Digitalized version of the card game Set from 1974. Using interactive, clickable Matplotlib axes for cards, and terminal for status updates/ leaderboard. Play online against friends anywhere in the world!
 
 # Current features
 - Set (No endgame mode)
@@ -12,6 +12,12 @@ Digitalized version of the card game Set from 1974. Using interactive, clickable
 # Upcomming features
 - Two different endgame modes
 - Tutorial
+- Customizable styles
 - More commandline arguments to see games currently in play
+- Easier commandline argument use
+- Permanent hosting, not requring host to compromize IP
 - Option of requring password to enter game
 - observer mode
+- Suggetions/bug-rapporting
+- Pizza delivery
+- Tournament mode
