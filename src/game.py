@@ -1,4 +1,5 @@
 from card import Card
+from itertools import combinations
 
 
 class Game:
@@ -18,12 +19,19 @@ class Game:
         self.used_cards = 0  # how many Cards pulled from deck
         self.other_msg = None
         self.extra = False
+        self.game_over = False
 
     def __str__(self):
         return str(self.id)
 
     def get_active_ids(self):
         return [self.deck[i].id if i is not None else None for i in self.active]
+
+    def remaining(self):
+        if self.used_cards is None:
+            return 0
+        else:
+            return 81 - self.used_cards
 
     def start(self):
         """ Start game and fill the board """
@@ -42,9 +50,9 @@ class Game:
         """
         if sum([j is not None for j in self.active]) <= 12 or extra:
             self.active[i] = self.used_cards
-            if self.used_cards == 81:
+            if self.used_cards == 80:
                 self.used_cards = None
-            else:
+            elif self.used_cards is not None:
                 self.used_cards += 1
         else:
             self.active[i] = None
@@ -72,23 +80,31 @@ class Game:
             for n in idxs:
                 self.add_card(n)
             self.move()
+            self.end_game()
         return valid
 
-    def set_on_board(self, check=False, help=False):
-        # go throught every combination of cards on board to find if at least one set is on the board
-        # Called by player when click on deck (blue numerated axes in corner), or if player asks for help
-        cnt = sum([i is not None for i in self.active])
-        for i in range(cnt):
-            for j in range(i + 1, cnt):
-                for k in range(j + 1, cnt):
-                    if self.validate_set((i, j, k)):
-                        if help:
-                            return i, j, k
-                        else:
-                            return True
-        if check:  # if called by player clicking deck and no sets on board:
-            if self.extra:
-                self.other_msg = ""  # should tell players game is over. board is full, and no sets
+    def end_game(self):
+        if self.used_cards is None:
+            if not self.set_on_board():
+                self.game_over = True
+        elif self.extra and not self.set_on_board():
+            self.game_over = True
+
+    def set_on_board(self, player=False, help=False):
+        # loop through every combinatin of cards on board to determine if there's at leat 1 set
+        # player=True if deck is clicked, climing there are no sets on board, in which case extra are added
+        # help is debug-function, player asking for help
+        for i, j, k in combinations(range(15), 3):
+            if None in [self.active[n] for n in (i, j, k)]:
+                continue
+            elif self.validate_set((i, j, k)):
+                if help:
+                    return i, j, k
+                else:
+                    return True
+        if player:  # player click in deck
+            if self.extra: # if true, would end game. Handled by end_game()
+                self.other_msg = ""
             else:
-                self.add_extra()  # add 3 extra
+                self.add_extra()
         return False
