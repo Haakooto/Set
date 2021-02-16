@@ -5,6 +5,7 @@ import time
 import pickle
 
 
+
 """
 Server to connect players and recieve and give updates on game
 """
@@ -31,7 +32,8 @@ active_games = {}
 def thread_client(conn, name, id):
     # Threaded to keep running without halting rest of program. (parallellized)
     print(f"Established connection with '{name}' in '{id}'\n")
-    while True:
+    game_finished = False
+    while not game_finished:
         pkg = None
         data = None
         try:
@@ -55,13 +57,21 @@ def thread_client(conn, name, id):
                             active_games[id]["players"][name] -= 1
 
                     elif data == "start":  # start
+                        active_games[id]["timer"] = time.time()
                         pkg = game.start()
 
                     elif data == "started?":  # query started
                         pkg = game.started
 
                     elif data == "gimme_news": # update after game start. Should be most commonly called
-                        pkg = (81 - game.used_cards, game.get_active_ids(), active_games[id]["players"], game.other_msg)
+                        if not game.game_over:
+                            pkg = (game.remaining(), game.get_active_ids(), active_games[id]["players"], game.other_msg)
+                        else:
+                            pkg = ["finish", time.time() - active_games[id]["timer"]]
+                            game_finished = True
+
+                    elif data == "g":
+                        print(game.active)
 
                     elif isinstance(data, list):  # when player has clicked 3 cards. Sends list and returns if cards form set
                         if len(data) == 3:
@@ -126,6 +136,7 @@ while True:
         active_games[game_id] = {}
         active_games[game_id]["players"] = {name: 0}
         active_games[game_id]["game"] = Game(game_id)
+        active_games[game_id]["timer"] = 0
 
     pkg = (
         (game_already_idd, game_id),
