@@ -90,9 +90,9 @@ class Game:
         elif self.extra and not self.set_on_board():
             self.game_over = True
 
-    def set_on_board(self, player=False, help=False):
+    def set_on_board(self, check=False, help=False):
         # loop through every combinatin of cards on board to determine if there's at leat 1 set
-        # player=True if deck is clicked, climing there are no sets on board, in which case extra are added
+        # check=True if deck is clicked, climing there are no sets on board, in which case extra are added
         # help is debug-function, player asking for help
         for i, j, k in combinations(range(15), 3):
             if None in [self.active[n] for n in (i, j, k)]:
@@ -102,7 +102,7 @@ class Game:
                     return i, j, k
                 else:
                     return True
-        if player:  # player click in deck
+        if check:  # player click in deck
             if self.extra: # if true, would end game. Handled by end_game()
                 self.other_msg = ""
             else:
