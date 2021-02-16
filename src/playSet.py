@@ -52,8 +52,7 @@ def key_press_event(event):
     if event.key == "r":
         print("Responsive")
     if event.key == "g":
-        print(Me.active)
-        # plt.close()
+        pass
     Me.update()
 
 
