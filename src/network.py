@@ -36,7 +36,18 @@ class NetworkManager:
             self.client.send(pickle.dumps(data))
             ret = self.client.recv(self.packet_size)
             if ret:
-                return pickle.loads(ret)
+                ret = pickle.loads(ret)
+            if isinstance(ret, list):
+                if ret[0] == "finish":
+                    self.player.call_winner(ret[1])
+                    close()
+                    self.client.close()
+                    return None
+
+            return ret
+
         except:
-            self.player.call_winner()
+            print("Connetion to server lost")
             close()
+            self.client.close()
+            return None
