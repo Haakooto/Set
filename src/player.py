@@ -4,6 +4,7 @@ from matplotlib.offsetbox import AnchoredText
 import matplotlib as mpl
 import time
 import numpy as np
+from datetime import timedelta
 
 
 class Player:
@@ -61,17 +62,19 @@ class Player:
         if not self.started:  # query the server for start of game
             self.started = self.NM.send("started?")
         else:  # recieve new data, print leaderboard and draw cards on board
-            numerator, cards, table, other_msg = self.NM.send("gimme_news")
-            if numerator is not None:
-                self.numerator = numerator
-            self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
-            self.draw()
-            table = {i: table[i] for i in sorted(table, key=lambda x: table[x])[::-1]}
-            if table != self.table:
-                self.table = table
-                self.print()
-            if other_msg is not None:
-                print(other_msg)
+            news = self.NM.send("gimme_news")
+            if news is not None:
+                numerator, cards, table, other_msg = news
+                if numerator is not None:
+                    self.numerator = numerator
+                self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
+                self.draw()
+                table = {i: table[i] for i in sorted(table, key=lambda x: table[x])[::-1]}
+                if table != self.table:
+                    self.table = table
+                    self.print()
+                if other_msg is not None:
+                    print(other_msg)
 
     def click(self, i):
         """
@@ -179,5 +182,7 @@ class Player:
             else:
                 print(*reply)
 
-    def call_winner(self):
+    def call_winner(self, time_used):
+        print("\n\nNo more valid sets on board. Game is over!")
+        print("Time used: ", timedelta(seconds=round(time_used)))
         self.print(True)
