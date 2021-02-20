@@ -1,6 +1,6 @@
 import socket
 import pickle
-from matplotlib.pyplot import close
+from card import Card
 
 
 class NetworkManager:
@@ -39,8 +39,8 @@ class NetworkManager:
                 ret = pickle.loads(ret)
             if isinstance(ret, list):
                 if ret[0] == "finish":
-                    self.player.call_winner(ret[1])
-                    close()
+                    self.player.call_winner(ret[2])
+                    self.player.active = [Card(*[int(i) for i in id]) if id is not None else None for id in ret[1]]
                     self.client.close()
                     return None
 
@@ -48,6 +48,5 @@ class NetworkManager:
 
         except:
             print("Connetion to server lost")
-            close()
             self.client.close()
             return None
