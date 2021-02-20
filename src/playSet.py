@@ -1,8 +1,13 @@
 import matplotlib.pyplot as plt
+from threading import Thread
+import socket
+from pynput.keyboard import Controller
+
+import sys
+import time
+
 from card import AxBorder
 from player import Player
-import sys
-from threading import Thread, Lock
 
 
 cmd = sys.argv[1:]
@@ -25,7 +30,8 @@ try:
     sidx = cmd.index("-s")
     server = cmd[sidx + 1]
 except:
-    server = "192.168.0.15"
+    server = socket.gethostname()
+
 
 """
 Use -n and -g in commandline to request name and game to join. see server.py
@@ -43,7 +49,7 @@ def mouse_click_event(event):
 
 def on_move_event(event):
     Me.update()
-    pass
+    # pass
 
 
 def key_press_event(event):
@@ -51,7 +57,13 @@ def key_press_event(event):
         Me.get_if_set_on_board()
     if event.key == "r":
         print("Responsive")
+    if event.key == "q":
+        Me.finished = True
     if event.key == "g":
+        # reserved for testing
+        pass
+    if event.key == "j":
+        # reserved for autoclicker
         pass
     Me.update()
 
@@ -65,11 +77,31 @@ def say(name):
         print(a)
 
 
+def auto_click(player):
+    while not player.started:
+        time.sleep(0.1)
+    keyboard = Controller()
+
+    while not player.finished:
+        keyboard.press("j")
+        time.sleep(0.01)
+        keyboard.release("j")
+        time.sleep(1)
+
+
 fig, axs = plt.subplots(nrows=4, ncols=4)
 axs = axs.flatten()
 for ax in axs:
     ax.axis("off")
+    ax.final_card = False
     ax.add_artist(AxBorder(ax is axs[-1]))
+
+plt.subplots_adjust(left=0.01,
+                    bottom=0.01,
+                    right=0.99,
+                    top=0.99,
+                    wspace=0.1,
+                    hspace=0.1)
 
 fig.canvas.mpl_connect("button_press_event", mouse_click_event)
 fig.canvas.mpl_connect("motion_notify_event", on_move_event)
@@ -78,8 +110,13 @@ fig.canvas.mpl_connect("key_press_event", key_press_event)
 Me = Player(axs, server, port, name, gameid)
 Me.update()
 
+
 # talker = Thread(target=say, args=(Me.name,))
+clicker = Thread(target=auto_click, args=(Me,))
 # talker.start()
+clicker.start()
 
 plt.show()
+
 # talker.join(timeout=1)
+clicker.join(timeout=1)
