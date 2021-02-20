@@ -5,6 +5,7 @@ import matplotlib as mpl
 import time
 import numpy as np
 from datetime import timedelta
+import sounds
 
 
 class Player:
@@ -35,6 +36,7 @@ class Player:
         self.started = False
         self.numerator = 81  # cards left in deck
         self.table = ""  # Leaderboard
+        self.finished = False
 
         self.numerate(self.numerator)  # Place '81' on deck before game starts
 
@@ -61,7 +63,7 @@ class Player:
     def update(self):
         if not self.started:  # query the server for start of game
             self.started = self.NM.send("started?")
-        else:  # recieve new data, print leaderboard and draw cards on board
+        elif not self.finished:  # recieve new data, print leaderboard and draw cards on board
             news = self.NM.send("gimme_news")
             if news is not None:
                 numerator, cards, table, other_msg = news
@@ -75,30 +77,40 @@ class Player:
                     self.print()
                 if other_msg is not None:
                     print(other_msg)
+        else:
+            self.draw()
 
     def click(self, i):
         """
         called when player clicks card
         """
-        if i == 15:
-            if not self.started:  # Start game by clicking deck
-                self.started = self.NM.send("start")
-            elif self.NM.send("no_set_on_board"):  # claim no sets are left on board
-                print("You have successfully found that there is no set on the current board.\nPoint given!")
-            else:
-                print("There is still at least one set on the board.\nPenalty given!")
+        if not self.finished:
+            if i == 15:
+                if not self.started:  # Start game by clicking deck
+                    self.started = self.NM.send("start")
+                elif self.NM.send("no_set_on_board"):  # claim no sets are left on board
+                    print("You have successfully found that there is no set on the current board.\nPoint given!")
+                else:
+                    print("There is still at least one set on the board.\nPenalty given!")
+                    sounds.nelson()
 
-        elif self.get_card(i) is not None:  # make sure axes actuall has card in it
+            elif self.get_card(i) is not None:  # make sure axes actuall has card in it
+                if i in self.clicked:
+                    self.clicked.remove(i)
+                else:
+                    self.clicked.append(i)
+            if len(self.clicked) == 3:
+                if self.NM.send(self.clicked):
+                    print("That was a Set.\nPoint given!")
+                else:
+                    print("That was NOT a Set.\nPenalty given!")
+                    sounds.nelson()
+                self.clicked = []
+        else:
             if i in self.clicked:
                 self.clicked.remove(i)
             else:
                 self.clicked.append(i)
-        if len(self.clicked) == 3:
-            if self.NM.send(self.clicked):
-                print("That was a Set.\nPoint given!")
-            else:
-                print("That was NOT a Set.\nPenalty given!")
-            self.clicked = []
         self.update()
 
     def draw(self):  # draw the board (place card on board)
@@ -176,7 +188,6 @@ class Player:
     def get_if_set_on_board(self):
         if self.started:
             reply = self.NM.send("set_on_board?")
-            print(reply)
             if not reply:
                 print("No sets on board")
             else:
@@ -185,4 +196,5 @@ class Player:
     def call_winner(self, time_used):
         print("\n\nNo more valid sets on board. Game is over!")
         print("Time used: ", timedelta(seconds=round(time_used)))
+        self.finished = True
         self.print(True)
