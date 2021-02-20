@@ -1,29 +1,52 @@
 import socket
 from _thread import start_new_thread as SNT
-from game import Game
-import time
 import pickle
 
+import time
+import sys
+from datetime import datetime
 
+from game import Game
+
+
+def server_log(*args):
+    if len(args) == 0:
+        print()
+    else:
+        out = f"{str(datetime.now()) :<30}"
+        for arg in args:
+            out += " " + str(arg)
+        print(out)
 
 """
 Server to connect players and recieve and give updates on game
 """
 
-server = "192.168.0.15"  # set to ip of host device.
-port = 5016
-package_size = 2 ** 12
+cmd = sys.argv[1:]
+try:
+    port = int(cmd[cmd.index("-p") + 1])
+except:
+    port = 5016
+try:
+    server = cmd[cmd.index("-s") + 1]
+except:
+    server = socket.gethostname()
 
+"""
+Use -s and -p in commandline to set server_IP and port to host server at
+"""
+
+package_size = 2 ** 12
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
     s.bind((server, port))
-except socket.error as e:
+except socket.error:
     raise
 
 s.listen()
-print("Server started. Waiting for connections...")
-print(f"Can be found at IP = {server}, port = {port}\n")
+server_log("Server started. Waiting for connections...")
+server_log(f"Can be found at IP = {server}, port = {port}\n")
 
 active_games = {}
 # keys are game_ids. Values are dicts with 2 keys. "game" and "players". Last have dict with name and score as items. First is Game-instance
@@ -31,7 +54,7 @@ active_games = {}
 
 def thread_client(conn, name, id):
     # Threaded to keep running without halting rest of program. (parallellized)
-    print(f"Established connection with '{name}' in '{id}'\n")
+    server_log(f"Established connection with '{name}' in '{id}'\n")
     game_finished = False
     while not game_finished:
         pkg = None
@@ -44,7 +67,6 @@ def thread_client(conn, name, id):
                     # if made it to here data will contain shit sent from player
                     # Handle different cases
                     game = active_games[id]["game"]
-                    # print(game)
 
                     if data == "set_on_board?": # cheat
                         pkg = game.set_on_board(help=True)
@@ -67,11 +89,8 @@ def thread_client(conn, name, id):
                         if not game.game_over:
                             pkg = (game.remaining(), game.get_active_ids(), active_games[id]["players"], game.other_msg)
                         else:
-                            pkg = ["finish", time.time() - active_games[id]["timer"]]
+                            pkg = ["finish", game.get_active_ids(), time.time() - active_games[id]["timer"]]
                             game_finished = True
-
-                    elif data == "g":
-                        print(game.active)
 
                     elif isinstance(data, list):  # when player has clicked 3 cards. Sends list and returns if cards form set
                         if len(data) == 3:
@@ -82,8 +101,8 @@ def thread_client(conn, name, id):
                                 active_games[id]["players"][name] -= 1
 
                     if pkg is None:
-                        print("Weird shit. pgk is None!")
-                        print("data is ", data)
+                        server_log("Weird shit. pgk is None!")
+                        server_log("data is ", data)
 
                     conn.sendall(pickle.dumps(pkg))
                 else:
@@ -92,25 +111,25 @@ def thread_client(conn, name, id):
                 break
         except:
             break
-    print(f"Lost connection to '{name}' in '{id}'")
+    server_log(f"Lost connection to '{name}' in '{id}'")
     try:
         active_games[id]["players"][name + " (disconnected)"] = active_games[id]["players"].pop(name)
         active_games[id]["game"].inactive += 1
         if len(active_games[id]["players"]) == active_games[id]["game"].inactive:
-            print(f"No players left in '{id}'. closing game.")
+            server_log(f"No players left in '{id}'. closing game.")
             del active_games[id]["players"]
             del active_games[id]["game"]
             del active_games[id]
     except:
-        print("\nWait wHAAAT?\n")
+        server_log("\nWait wHAAAT?\n")
         pass
-    print()
+    server_log()
     conn.close()
 
 
 while True:
     conn, addr = s.accept()
-    print("Connetced to", addr)
+    server_log("Connetced to", addr)
 
     game_id, name = pickle.loads(conn.recv(package_size))
     name_taken = False
@@ -119,7 +138,7 @@ while True:
     if game_id is None:
         game_id = "SetGame_" + str(time.time())[-4:]
         if game_id in active_games:
-            print("\nA freak event happened! Someone not specifying game_id joined game in progress!\n\n")
+            server_log("\nA freak event happened! Someone not specifying game_id joined game in progress!\n\n")
 
     if game_id in active_games:
         if (name in active_games[game_id]["players"]) or (name is None):
@@ -129,7 +148,7 @@ while True:
         active_games[game_id]["players"][name] = 0
 
     else:
-        print(f"Creating new game: '{game_id}'")
+        server_log(f"Creating new game: '{game_id}'")
         if name is None:
             name = "player 1"
         game_already_idd = False
