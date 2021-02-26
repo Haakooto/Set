@@ -6,8 +6,8 @@ from pynput.keyboard import Controller
 import sys
 import time
 
-from card import AxBorder
-from player import Player
+from src.card import AxBorder
+from src.player import Player
 
 
 cmd = sys.argv[1:]
@@ -22,7 +22,7 @@ try:
 except:
     gameid = None
 try:
-    pidx = cmd.index("-p")
+    pidx = cmd.index("-p")jjj
     port = int(cmd[pidx + 1])
 except:
     port = 5016
@@ -47,9 +47,9 @@ def mouse_click_event(event):
     Me.update()
 
 
-def on_move_event(event):
-    Me.update()
-    # pass
+def onjj_move_event(event):
+    # Me.update()
+    pass
 
 
 def key_press_event(event):

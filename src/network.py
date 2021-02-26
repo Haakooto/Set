@@ -1,6 +1,6 @@
 import socket
 import pickle
-from card import Card
+from .card import Card
 
 
 class NetworkManager:

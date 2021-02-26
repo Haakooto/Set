@@ -1,15 +1,14 @@
-from network import NetworkManager
-from card import Card, AxBorder
-from matplotlib.offsetbox import AnchoredText
 import matplotlib as mpl
-import time
-import numpy as np
+from matplotlib.offsetbox import AnchoredText
 from datetime import timedelta
-import sounds
+
+from .network import NetworkManager
+from .card import Card, AxBorder
+import src.sounds as sounds
 
 
 class Player:
-    """
+    """j
     Class created in playSet for each player
     Is the players interaction with the game
     recieves current cards on the board from server through NetworkManager and places them on board
