@@ -69,7 +69,8 @@ def thread_client(conn, name, id):
                     game = active_games[id]["game"]
 
                     if data == "set_on_board?": # cheat
-                        pkg = game.set_on_board(help=True)
+                        pass
+                        # pkg = game.set_on_board(help=True)
 
                     elif data == "no_set_on_board": # claim no set on board
                         pkg = not game.set_on_board(check=True)
