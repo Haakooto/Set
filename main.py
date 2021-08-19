@@ -22,7 +22,7 @@ try:
 except:
     gameid = None
 try:
-    pidx = cmd.index("-p")jjj
+    pidx = cmd.index("-p")
     port = int(cmd[pidx + 1])
 except:
     port = 5016
@@ -47,7 +47,7 @@ def mouse_click_event(event):
     Me.update()
 
 
-def onjj_move_event(event):
+def on_move_event(event):
     # Me.update()
     pass
 
