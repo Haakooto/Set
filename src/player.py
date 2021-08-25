@@ -20,12 +20,14 @@ class Player:
         self.NM = NetworkManager(self, server, port)
         game, name = self.NM.connect(game, name)
         valid_gid, self.game = game  # name and game_id is subject to change if not valid
-        valid_name, self.name = name
+        name_taken, self.name = name
 
         if valid_gid:
             print(f"Joined game '{self.game}'")
-            if not valid_name:
-                print(f"Name was already taken or not given. New name '{self.name}' given.\nYou can disconnect and reconnect with new name if you want to change. NB: will clear any points if game has already started!")
+            if name_taken:
+                print(f"Name was already taken or not given. New name '{self.name}' given.")
+                print("You can disconnect and reconnect with new name if you want to change.")
+                print("NB: will clear any points if game has already started!")
         else:
             print(f"Started new game with game id '{self.game}'")
 
