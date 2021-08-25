@@ -1,13 +1,10 @@
 import matplotlib.pyplot as plt
-from threading import Thread
 import socket
-from pynput.keyboard import Controller
-
 import sys
-import time
 
 from src.card import AxBorder
 from src.player import Player
+from src.network import AutoUpdate
 
 
 cmd = sys.argv[1:]
@@ -48,8 +45,8 @@ def mouse_click_event(event):
 
 
 def on_move_event(event):
-    Me.update()
-    # pass
+    # Me.update()
+    pass
 
 
 def key_press_event(event):
@@ -59,7 +56,6 @@ def key_press_event(event):
         print("Responsive")
     if event.key == "q":
         Me.finish()
-        clicker.join(timeout=1)
     if event.key == "g":
         # reserved for testing
         pass
@@ -67,34 +63,6 @@ def key_press_event(event):
         # reserved for autoclicker
         pass
     Me.update()
-
-
-def say(name):
-    """
-    Start of chat system to be implemented later
-    """
-    while True:
-        a = input()
-        print(a)
-
-
-def stupid_auto_click(player):
-    while not player.started:
-        time.sleep(0.1)
-        if player.finished:
-            return
-    keyboard = Controller()
-
-    while not player.finished:
-        keyboard.press("j")
-        time.sleep(0.01)
-        keyboard.release("j")
-        time.sleep(1)
-
-def auto_click(player):
-    while not player.finished:
-        player.update()
-        time.sleep(1)
 
 
 fig, axs = plt.subplots(nrows=4, ncols=4)
@@ -117,14 +85,6 @@ fig.canvas.mpl_connect("key_press_event", key_press_event)
 
 Me = Player(axs, server, port, name, gameid)
 Me.update()
-
-
-# talker = Thread(target=say, args=(Me.name,))
-clicker = Thread(target=auto_click, args=(Me,))
-# talker.start()
-clicker.start()
+AutoUpdate(Me, key_press_event)
 
 plt.show()
-
-# talker.join(timeout=1)
-clicker.join(timeout=1)

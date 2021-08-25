@@ -1,5 +1,7 @@
 import socket
 import pickle
+from threading import Thread
+import time
 from .card import Card
 
 
@@ -50,3 +52,16 @@ class NetworkManager:
             print("Connetion to server lost")
             self.client.close()
             return None
+
+
+class AutoUpdate:
+    def __init__(self, player, f):
+        self.key = "j"
+        self.player = player
+        self.updater = Thread(target=self.update, args=(f,))
+        self.updater.start()
+
+    def update(self, f):
+        while not self.player.finished:
+            f(self)
+            time.sleep(1)
