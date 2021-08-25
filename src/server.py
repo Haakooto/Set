@@ -82,7 +82,7 @@ class Server:
                 if (name in self.active_games[game_id]["players"]) or (name is None):
                     if name is not None:
                         name_taken = True
-                    name = "player " + str(len(self.active_games[game_id][players]) + 1)
+                    name = "player " + str(len(self.active_games[game_id]["players"]) + 1)
                 self.active_games[game_id]["players"][name] = 0
 
         else:
