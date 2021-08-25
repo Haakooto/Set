@@ -12,13 +12,16 @@ class NetworkManager:
     Sends and recieves data
 
     """
-    def __init__(self, player, server, port):
+    def __init__(self, player, server, port, list_games=False):
         self.player = player
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
         self.addr = (self.server, self.port)
         self.packet_size = 2 ** 12
+
+        if list_games:
+            self.list_games()
 
     def connect(self, game, name):
         """
@@ -39,6 +42,8 @@ class NetworkManager:
             ret = self.client.recv(self.packet_size)
             if ret:
                 ret = pickle.loads(ret)
+            if ret == "byebye":
+                self.player.AU.halt()
             if isinstance(ret, list):
                 if ret[0] == "finish":
                     self.player.call_winner(ret[2])
@@ -53,11 +58,17 @@ class NetworkManager:
             self.client.close()
             return None
 
+    def list_games(self):
+        data = self.connect("ListAllGames", None)
+        # ! remember to format
+        print(data)
+
 
 class AutoUpdate:
     def __init__(self, player, f):
         self.key = "j"
         self.player = player
+        self.player.AU = self
         self.updater = Thread(target=self.update, args=(f,))
         self.updater.start()
 
@@ -65,3 +76,7 @@ class AutoUpdate:
         while not self.player.finished:
             f(self)
             time.sleep(1)
+
+    def halt(self):
+        print("Server shutting down. Game over")
+        self.key = "q"

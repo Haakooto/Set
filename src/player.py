@@ -213,3 +213,7 @@ class Player:
     def finish(self):
         self.finished = True
         self.NM.client.close()
+
+class Observer(Player):
+    def __init__(self):
+        pass

@@ -3,8 +3,8 @@ import socket
 import sys
 
 from src.card import AxBorder
-from src.player import Player
-from src.network import AutoUpdate
+from src.player import Player, Observer
+from src.network import NetworkManager, AutoUpdate
 
 
 cmd = sys.argv[1:]
@@ -28,11 +28,17 @@ try:
     server = cmd[sidx + 1]
 except:
     server = socket.gethostname()
-
+    
+if "-l" in cmd or gameid == "ListAllGames":
+    NetworkManager(None, server, port, list_games=True)
+    sys.exit()
+elif "-o" in cmd:
+    name = "Observer"
 
 """
 Use -n and -g in commandline to request name and game to join. see server.py
 Use -s and -p in commandline to set server_IP and port to search for server at
+Use -l  or -o in commandline to list active games, or start observe mode
 """
 
 
@@ -83,7 +89,10 @@ fig.canvas.mpl_connect("button_press_event", mouse_click_event)
 fig.canvas.mpl_connect("motion_notify_event", on_move_event)
 fig.canvas.mpl_connect("key_press_event", key_press_event)
 
-Me = Player(axs, server, port, name, gameid)
+if name == "Observer":
+    Me = Observer(axs, server, port, name, gameid)
+else:
+    Me = Player(axs, server, port, name, gameid)
 Me.update()
 AutoUpdate(Me, key_press_event)
 
