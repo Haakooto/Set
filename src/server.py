@@ -67,7 +67,6 @@ class Server:
         self.log("Connected to", addr)
 
         game_id, name = pickle.loads(conn.recv(self.ps))
-        print(name, type(name))
         name_taken = False
         game_already_idd = True
 
