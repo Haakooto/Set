@@ -1,6 +1,7 @@
 import matplotlib as mpl
 from matplotlib.offsetbox import AnchoredText
 from datetime import timedelta
+from time import time
 
 from .network import NetworkManager
 from .card import Card, AxBorder
@@ -8,7 +9,7 @@ import src.sounds as sounds
 
 
 class Player:
-    """j
+    """
     Class created in playSet for each player
     Is the players interaction with the game
     recieves current cards on the board from server through NetworkManager and places them on board
@@ -36,6 +37,7 @@ class Player:
         self.numerator = 81  # cards left in deck
         self.table = ""  # Leaderboard
         self.finished = False
+        self.time = None
 
         self.numerate(self.numerator)  # Place '81' on deck before game starts
 
@@ -59,7 +61,16 @@ class Player:
             if isinstance(child, AxBorder):
                 return child
 
+    def long_time_since_update(self):
+        if self.time is None:
+            self.time = time()
+            return True
+        return (time() - self.time) > 0.05
+
     def update(self):
+        if not self.long_time_since_update():
+            return
+        self.time = time()
         if not self.started:  # query the server for start of game
             self.started = self.NM.send("started?")
         elif not self.finished:  # recieve new data, print leaderboard and draw cards on board
@@ -195,5 +206,8 @@ class Player:
     def call_winner(self, time_used):
         print("\n\nNo more valid sets on board. Game is over!")
         print("Time used: ", timedelta(seconds=round(time_used)))
-        self.finished = True
         self.print(True)
+
+    def finish(self):
+        self.finished = True
+        self.NM.client.close()

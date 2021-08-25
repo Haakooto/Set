@@ -48,8 +48,8 @@ def mouse_click_event(event):
 
 
 def on_move_event(event):
-    # Me.update()
-    pass
+    Me.update()
+    # pass
 
 
 def key_press_event(event):
@@ -58,7 +58,8 @@ def key_press_event(event):
     if event.key == "r":
         print("Responsive")
     if event.key == "q":
-        Me.finished = True
+        Me.finish()
+        clicker.join(timeout=1)
     if event.key == "g":
         # reserved for testing
         pass
@@ -77,15 +78,22 @@ def say(name):
         print(a)
 
 
-def auto_click(player):
+def stupid_auto_click(player):
     while not player.started:
         time.sleep(0.1)
+        if player.finished:
+            return
     keyboard = Controller()
 
     while not player.finished:
         keyboard.press("j")
         time.sleep(0.01)
         keyboard.release("j")
+        time.sleep(1)
+
+def auto_click(player):
+    while not player.finished:
+        player.update()
         time.sleep(1)
 
 
