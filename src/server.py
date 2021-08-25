@@ -127,6 +127,12 @@ def thread_client(conn, name, id):
     server_log()
     conn.close()
 
+def do():
+    while True:
+        exec(input())
+
+SNT(do, ())
+
 
 while True:
     conn, addr = s.accept()
