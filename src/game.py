@@ -24,6 +24,9 @@ class Game:
     def __str__(self):
         return str(self.id)
 
+    def __repr__(self):
+        return str(self.id)
+
     def get_active_ids(self):
         return [self.deck[i].id if i is not None else None for i in self.active]
 

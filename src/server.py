@@ -43,6 +43,7 @@ class Server:
         self.active_games = {}
         self.clients = []
 
+        self.running = True
         SNT(self.do, ())
 
     def log(self, *args):
@@ -56,7 +57,7 @@ class Server:
 
     def do(self):
         safe_words = "quit q exit end stop fuckoff die".split()
-        while True:
+        while self.running:
             i = input()
             if i in safe_words:
                 self.shut_down()
@@ -73,7 +74,9 @@ class Server:
         if game_id is None:
             game_id = "SetGame_" + str(time.time())[-4:]
         elif game_id == "ListAllGames":
-            conn.sendall(pickle.dumps(self.active_games))
+            conn.sendall(pickle.dumps(self.format()))
+            self.log("Closing connection to", addr, "\n")
+            conn.close()
             return
 
         if game_id in self.active_games:
@@ -93,7 +96,6 @@ class Server:
 
             if name is None:
                 name = "player 1"
-                # self.active_games[game_id]["players"] = {"player 1": 0}
             if name != "Observer":
                 self.active_games[game_id]["players"] = {name: 0}
 
@@ -114,17 +116,28 @@ class Server:
             self.log(f"No players left in '{client.g}'. Closing game.")
             del game["players"]
             del game["game"]
-            del game
+            del game["timer"]
+            del self.active_games[client.g]
+
         self.log()
         client.c.close()
         self.clients.remove(client)
 
-    def shut_down(self):
-        print("lol")
-        pass
+    def format(self):
+        tmp = {}
+        for name, game in self.active_games.items():
+            tmp[name] = game["players"]
+        return tmp
 
+    def shut_down(self):
+        for c in self.clients:
+            c.c.sendall(pickle.dumps("byebye"))
+        self.running = False
+        self.s.close()
+        self.log("Server shutting down")
+        sys.exit()
 
 S = Server(server, port)
-while True:
+while S.running:
     conn, addr = S.s.accept()
     S.new_connection(conn, addr)
