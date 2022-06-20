@@ -50,7 +50,7 @@ class Player:
         self.finished = False
         self.time = None
 
-            self.numerate(self.numerator)  # Place '81' on deck before game starts
+        self.numerate(self.numerator)  # Place '81' on deck before game starts
 
     def __str__(self):
         return f"Player '{self.name}' in game '{self.game}'"
@@ -138,22 +138,12 @@ class Player:
         for i, card in enumerate(self.active):
             if card is None:
                 self.get_border(i).set_edgecolor("white")
-
-                # syntax only valid in python3.9 (whalrus operator)
-                # if (card_ := self.get_card(i)) is not None:
-                    # card_.remove()
-
-                card_ = self.get_card(i)
-                if card_ is not None:
+                if (card_ := self.get_card(i)) is not None:
                     card_.remove()
+
             else:
-                # if (old := self.get_card(i)) is not None:
-                    # if old.is_same(card):
-                old = self.get_card(i)
-                if old is not None:
-                    if old.is_same(card):
-                        pass
-                    else:
+                if (old := self.get_card(i)) is not None:
+                    if not old.is_same(card):
                         ax = self.get_ax(i)
                         self.get_card(ax).remove()
                         card.make_blobs(ax)
@@ -187,7 +177,7 @@ class Player:
             if winner and not i:
                 plr += " (WINNER!!!)"
             if plr == self.name:
-                plr += fg.blue + " (YOU)" + fg.rs
+                plr += " (YOU)"
             out += f"{plr:<25}|{pts:^6}\n"
         out += "\n"
         print(out)
@@ -215,7 +205,7 @@ class Player:
                 print(*reply)
 
     def call_winner(self, time_used):
-        print(fg.red + bg.yellow + "\n\nNo more valid sets on board. Game is over!" + bg.rs + fg.rs)
+        print("\n" * 4 + "No more valid sets on board. Game is over!")
         print("Time used: ", timedelta(seconds=round(time_used)))
         self.print(True)
 

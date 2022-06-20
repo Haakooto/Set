@@ -44,7 +44,6 @@ class Server:
         self.clients = []
 
         self.running = True
-        SNT(self.do, ())
 
     def log(self, *args):
         if len(args) == 0:
@@ -55,15 +54,6 @@ class Server:
                 out += " " + str(arg)
             print(out)
 
-    def do(self):
-        safe_words = "quit q exit end stop fuckoff die".split()
-        while self.running:
-            i = input()
-            if i in safe_words:
-                self.shut_down()
-            else:
-                exec(i)
-
     def new_connection(self, conn, addr):
         self.log("Connected to", addr)
 
@@ -71,7 +61,7 @@ class Server:
         name_taken = False
         game_already_idd = True
 
-        if game_id is None:
+        if not game_id:
             game_id = "SetGame_" + str(time.time())[-4:]
         elif game_id == "ListAllGames":
             conn.sendall(pickle.dumps(self.format()))
@@ -94,7 +84,7 @@ class Server:
             self.active_games[game_id]["timer"] = 0
             game_already_idd = False
 
-            if name is None:
+            if not name:
                 name = "player 1"
             if name != "Observer":
                 self.active_games[game_id]["players"] = {name: 0}

@@ -13,8 +13,8 @@ def play(file):
     doer.start()
 
 
-def nelson():
-    if np.random.random() < 0.05:
+def nelson(prob=0.05):
+    if np.random.random() < prob:
         play("haha.wav")
 
 

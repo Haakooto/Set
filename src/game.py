@@ -16,7 +16,7 @@ class Game:
         self.deck = Card.generate_deck()
         self.active = [None for i in range(15)]  # idxs if card in deck which should be on the board
         self.started = False  # False while waiting for players
-        self.used_cards = 0  # how many Cards pulled from deck
+        self.used_cards = 60  # how many Cards pulled from deck
         self.other_msg = None
         self.extra = False
         self.game_over = False

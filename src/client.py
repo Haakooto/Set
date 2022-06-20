@@ -10,6 +10,7 @@ class Client:
         self.a = addr
         self.n = name
         self.g = gameid
+        self.keep_running = True
 
         self.S.log(f"Established connection with '{self.n}' in '{self.g}'\n")
         self.S.clients.append(self)
@@ -23,7 +24,7 @@ class Client:
 
     def loop(self):
         game = self.S.active_games[self.g]
-        while not game["game"].game_over:
+        while self.keep_running:
             pkg = None
             data = None
             try:
@@ -53,6 +54,7 @@ class Client:
                                 pkg = (game["game"].remaining(), game["game"].get_active_ids(), game["players"], game["game"].other_msg)
                             else:
                                 pkg = ["finish", game["game"].get_active_ids(), time.time() - game["timer"]]
+                                self.keep_running = False
 
                         elif isinstance(data, list):
                             assert len(data) == 3

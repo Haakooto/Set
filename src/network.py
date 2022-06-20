@@ -67,18 +67,16 @@ class NetworkManager:
 
 
 class AutoUpdate:
-    def __init__(self, player, f):
+    def __init__(self, player, kpe):
         self.key = "j"
+        self.rate = 1  # refresh rate
         self.player = player
         self.player.AU = self
-        self.updater = Thread(target=self.update, args=(f,))
+
+        self.updater = Thread(target=self.update, args=(kpe,))
         self.updater.start()
 
-    def update(self, f):
+    def update(self, kpe):
         while not self.player.finished:
-            f(self)
-            time.sleep(1)
-
-    def halt(self):
-        print("Server shutting down. Game over")
-        self.key = "q"
+            kpe(self)
+            time.sleep(self.rate)
