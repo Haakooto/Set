@@ -193,10 +193,7 @@ class Card(DrawingArea):
     @staticmethod
     def id_list(deck):
         """ Convert list of Card to list if id (compression) """
-        ids = []
-        for card in deck:
-            ids.append(card.id)
-        return ids
+        return [card.id for card in deck]
 
 
 def standard_card():

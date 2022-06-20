@@ -1,15 +1,10 @@
 import matplotlib.pyplot as plt
-from threading import Thread
-import subprocess
 import socket
-from pynput.keyboard import Controller
-
 import sys
-import time
 
 from src.card import AxBorder
-from src.player import Player
-from src.network import AutoUpdate
+from src.player import Player, Observer
+from src.network import NetworkManager, AutoUpdate
 
 
 cmd = sys.argv[1:]
@@ -33,15 +28,17 @@ try:
     server = cmd[sidx + 1]
 except:
     server = socket.gethostname()
-if "-l" in cmd:
-    name = None
-elif "-i" in cmd:
-    game = None
+
+if "-l" in cmd or gameid == "ListAllGames":
+    NetworkManager(None, server, port, list_games=True)
+    sys.exit()
+elif "-o" in cmd:
+    name = "Observer"
 
 """
 Use -n and -g in commandline to request name and game to join. see server.py
 Use -s and -p in commandline to set server_IP and port to search for server at
-Use -l  or -i in commandline to list active games or inquire in server
+Use -l  or -o in commandline to list active games, or start observe mode
 """
 
 
@@ -64,7 +61,7 @@ def key_press_event(event):
     if event.key == "r":
         print("Responsive")
     if event.key == "q":
-        Me.finished = True
+        Me.finish()
     if event.key == "g":
         # reserved for testing
         pass
@@ -72,32 +69,6 @@ def key_press_event(event):
         # reserved for autoclicker
         pass
     Me.update()
-
-
-def say(name):
-    """
-    Start of chat system to be implemented later
-    """
-    while True:
-        a = input()
-        print(a)
-
-
-def auto_click(player):
-    while not player.started:
-        time.sleep(0.1)
-
-    keyboard = Controller()
-    while not (player.finished and player.started):
-        current_window = subprocess.Popen("xdotool getwindowfocus getwindowname".split(" "), stdout=subprocess.PIPE)
-        out, err = current_window.communicate()
-        if out.decode("utf8") == player.game:
-            keyboard.press("j")
-            time.sleep(0.01)
-            keyboard.release("j")
-            time.sleep(1)
-        if player.finished:
-            break
 
 
 fig, axs = plt.subplots(nrows=4, ncols=4)
@@ -118,25 +89,11 @@ fig.canvas.mpl_connect("button_press_event", mouse_click_event)
 fig.canvas.mpl_connect("motion_notify_event", on_move_event)
 fig.canvas.mpl_connect("key_press_event", key_press_event)
 
-Me = Player(axs, server, port, name, gameid)
-if Me.server_stop:
-    plt.clf()
-    sys.exit(0)
-
-plt.get_current_fig_manager().set_window_title(Me.game)
+if name == "Observer":
+    Me = Observer(axs, server, port, name, gameid)
+else:
+    Me = Player(axs, server, port, name, gameid)
 Me.update()
-
-
-# talker = Thread(target=say, args=(Me.name,))
-# clicker = Thread(target=auto_click, args=(Me,))
-# talker.start()
-# clicker.start()
-
-# clicker = AutoUpdate(Me)
-# clicker.start()
+AutoUpdate(Me, key_press_event)
 
 plt.show()
-
-# clicker.join()
-# talker.join(timeout=1)
-# clicker.join(timeout=1)

@@ -1,5 +1,7 @@
 import socket
 import pickle
+from threading import Thread
+import time
 from .card import Card
 from pynput.keyboard import Controller
 import threading
@@ -14,13 +16,16 @@ class NetworkManager:
     Sends and recieves data
 
     """
-    def __init__(self, player, server, port):
+    def __init__(self, player, server, port, list_games=False):
         self.player = player
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
         self.addr = (self.server, self.port)
         self.packet_size = 2 ** 12
+
+        if list_games:
+            self.list_games()
 
     def connect(self, game, name):
         """
@@ -41,7 +46,8 @@ class NetworkManager:
             ret = self.client.recv(self.packet_size)
             if ret:
                 ret = pickle.loads(ret)
-            print(ret)
+            if ret == "byebye":
+                self.player.AU.halt()
             if isinstance(ret, list):
                 if ret[0] == "finish":
                     self.player.call_winner(ret[2])
@@ -53,29 +59,26 @@ class NetworkManager:
 
         except:
             return None
-    @classmethod
-    def show_active_games(games):
-        for id, game in games.items():
-            print(id, time.time() - game["time"])
-            for player, score in game["players"].items():
-                print(f"    {player}: {score}")
+
+    def list_games(self):
+        data = self.connect("ListAllGames", None)
+        # TODO:  format this nicely
+        print(data)
 
 
-
-class AutoUpdate(threading.Thread):
-    def __init__(self, player):
-        super(AutoUpdate, self).__init__()
-        self.keyboard = Controller()
+class AutoUpdate:
+    def __init__(self, player, f):
+        self.key = "j"
         self.player = player
-    def run(self):
-        def in_focus():
-            return True
-            current_window = subprocess.Popen("xdotool getwindowfocus getwindowname".split(" "), stdout=subprocess.PIPE)
-            out, err = current_window.communicate()
-            return out.decode("utf8") == self.player.game
+        self.player.AU = self
+        self.updater = Thread(target=self.update, args=(f,))
+        self.updater.start()
 
+    def update(self, f):
         while not self.player.finished:
-            if self.player.started and in_focus():
-                self.keyboard.press("j")
-                time.sleep(1)
-                self.keyboard.release("j")
+            f(self)
+            time.sleep(1)
+
+    def halt(self):
+        print("Server shutting down. Game over")
+        self.key = "q"

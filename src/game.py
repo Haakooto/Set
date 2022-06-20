@@ -24,6 +24,9 @@ class Game:
     def __str__(self):
         return str(self.id)
 
+    def __repr__(self):
+        return str(self.id)
+
     def get_active_ids(self):
         return [self.deck[i].id if i is not None else None for i in self.active]
 
@@ -94,12 +97,12 @@ class Game:
         # loop through every combinatin of cards on board to determine if there's at leat 1 set
         # check=True if deck is clicked, climing there are no sets on board, in which case extra are added
         # help is debug-function, player asking for help
-        for i, j, k in combinations(range(15), 3):
-            if None in [self.active[n] for n in (i, j, k)]:
+        for ijk in combinations(range(15), 3):
+            if None in [self.active[n] for n in ijk]:
                 continue
-            elif self.validate_set((i, j, k)):
+            elif self.validate_set(ijk):
                 if help:
-                    return i, j, k
+                    return ijk
                 else:
                     return True
         if check:  # player click in deck

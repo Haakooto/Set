@@ -1,7 +1,7 @@
 import matplotlib as mpl
 from matplotlib.offsetbox import AnchoredText
 from datetime import timedelta
-from sty import fg, bg, rs
+from time import time
 
 from .network import NetworkManager
 from .card import Card, AxBorder
@@ -9,7 +9,7 @@ import src.sounds as sounds
 
 
 class Player:
-    """j
+    """
     Class created in playSet for each player
     Is the players interaction with the game
     recieves current cards on the board from server through NetworkManager and places them on board
@@ -19,9 +19,15 @@ class Player:
         self.NM = NetworkManager(self, server, port)
         print(game, name)
         game, name = self.NM.connect(game, name)
-        if name is None:
-            self.server_stop = True
-            NetworkManager.show_active_games(game)
+        valid_gid, self.game = game  # name and game_id is subject to change if not valid
+        name_taken, self.name = name
+
+        if valid_gid:
+            print(f"Joined game '{self.game}'")
+            if name_taken:
+                print(f"Name was already taken or not given. New name '{self.name}' given.")
+                print("You can disconnect and reconnect with new name if you want to change.")
+                print("NB: will clear any points if game has already started!")
         else:
             self.server_stop = False
             valid_gid, self.game = game  # name and game_id is subject to change if not valid
@@ -36,12 +42,13 @@ class Player:
 
             self.axs = axs
 
-            self.active = []  # same list as in Game
-            self.clicked = []  # clicked cards
-            self.started = False
-            self.numerator = 81  # cards left in deck
-            self.table = ""  # Leaderboard
-            self.finished = False
+        self.active = []  # same list as in Game
+        self.clicked = []  # clicked cards
+        self.started = False
+        self.numerator = 81  # cards left in deck
+        self.table = ""  # Leaderboard
+        self.finished = False
+        self.time = None
 
             self.numerate(self.numerator)  # Place '81' on deck before game starts
 
@@ -65,7 +72,16 @@ class Player:
             if isinstance(child, AxBorder):
                 return child
 
+    def long_time_since_update(self):
+        if self.time is None:
+            self.time = time()
+            return True
+        return (time() - self.time) > 0.05
+
     def update(self):
+        if not self.long_time_since_update():
+            return
+        self.time = time()
         if not self.started:  # query the server for start of game
             self.started = self.NM.send("started?")
         elif not self.finished:  # recieve new data, print leaderboard and draw cards on board
@@ -201,5 +217,13 @@ class Player:
     def call_winner(self, time_used):
         print(fg.red + bg.yellow + "\n\nNo more valid sets on board. Game is over!" + bg.rs + fg.rs)
         print("Time used: ", timedelta(seconds=round(time_used)))
-        self.finished = True
         self.print(True)
+
+    def finish(self):
+        self.finished = True
+        self.NM.client.close()
+
+# TODO
+class Observer(Player):
+    pass
+    # def __init__(self):
