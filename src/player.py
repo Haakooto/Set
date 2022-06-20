@@ -1,6 +1,7 @@
 import matplotlib as mpl
 from matplotlib.offsetbox import AnchoredText
 from datetime import timedelta
+from sty import fg, bg, rs
 
 from .network import NetworkManager
 from .card import Card, AxBorder
@@ -15,29 +16,34 @@ class Player:
     """
 
     def __init__(self, axs, server, port, name, game):
-
         self.NM = NetworkManager(self, server, port)
+        print(game, name)
         game, name = self.NM.connect(game, name)
-        valid_gid, self.game = game  # name and game_id is subject to change if not valid
-        valid_name, self.name = name
-
-        if valid_gid:
-            print(f"Joined game '{self.game}'")
-            if not valid_name:
-                print(f"Name was already taken or not given. New name '{self.name}' given.\nYou can disconnect and reconnect with new name if you want to change. NB: will clear any points if game has already started!")
+        if name is None:
+            self.server_stop = True
+            NetworkManager.show_active_games(game)
         else:
-            print(f"Started new game with game id '{self.game}'")
+            self.server_stop = False
+            valid_gid, self.game = game  # name and game_id is subject to change if not valid
+            valid_name, self.name = name
 
-        self.axs = axs
+            if valid_gid:
+                print(f"Joined game '{self.game}'")
+                if not valid_name:
+                    print(f"Name was already taken or not given. New name '{self.name}' given.\nYou can disconnect and reconnect with new name if you want to change. NB: will clear any points if game has already started!")
+            else:
+                print(f"Started new game with game id '{self.game}'")
 
-        self.active = []  # same list as in Game
-        self.clicked = []  # clicked cards
-        self.started = False
-        self.numerator = 81  # cards left in deck
-        self.table = ""  # Leaderboard
-        self.finished = False
+            self.axs = axs
 
-        self.numerate(self.numerator)  # Place '81' on deck before game starts
+            self.active = []  # same list as in Game
+            self.clicked = []  # clicked cards
+            self.started = False
+            self.numerator = 81  # cards left in deck
+            self.table = ""  # Leaderboard
+            self.finished = False
+
+            self.numerate(self.numerator)  # Place '81' on deck before game starts
 
     def __str__(self):
         return f"Player '{self.name}' in game '{self.game}'"
@@ -165,7 +171,7 @@ class Player:
             if winner and not i:
                 plr += " (WINNER!!!)"
             if plr == self.name:
-                plr += " (YOU)"
+                plr += fg.blue + " (YOU)" + fg.rs
             out += f"{plr:<25}|{pts:^6}\n"
         out += "\n"
         print(out)
@@ -193,7 +199,7 @@ class Player:
                 print(*reply)
 
     def call_winner(self, time_used):
-        print("\n\nNo more valid sets on board. Game is over!")
+        print(fg.red + bg.yellow + "\n\nNo more valid sets on board. Game is over!" + bg.rs + fg.rs)
         print("Time used: ", timedelta(seconds=round(time_used)))
         self.finished = True
         self.print(True)

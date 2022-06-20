@@ -127,29 +127,28 @@ def thread_client(conn, name, id):
     conn.close()
 
 
-while True:
-    conn, addr = s.accept()
-    server_log("Connetced to", addr)
-
-    game_id, name = pickle.loads(conn.recv(package_size))
+def connect_client(game_id, name, conn):
     name_taken = False
     game_already_idd = True
 
-    if game_id is None:
+    # Start new game
+    if game_id == "":
         game_id = "SetGame_" + str(time.time())[-4:]
         if game_id in active_games:
-            server_log("\nA freak event happened! Someone not specifying game_id joined game in progress!\n\n")
+            server_log("A freak event happened! Someone not specifying game_id joined game in progress!")
 
+    # Join existing game
     if game_id in active_games:
-        if (name in active_games[game_id]["players"]) or (name is None):
-            name_taken = True
+        if (name in active_games[game_id]["players"]) or (name == ""):
+            if name != "":
+                name_taken = True
             name = "player " + str(len(active_games[game_id]["players"]) + 1)
 
-        active_games[game_id]["players"][name] = 0
+        active_games[game_id]["players"][name] = 0  # initialize player with score
 
-    else:
+    else: # Join new game
         server_log(f"Creating new game: '{game_id}'")
-        if name is None:
+        if name == "":
             name = "player 1"
         game_already_idd = False
         active_games[game_id] = {}
@@ -165,3 +164,20 @@ while True:
 
     SNT(thread_client, (conn, name, game_id))  # All is ready for player to join/host a game. thread client
 
+
+while True:
+    conn, addr = s.accept()
+    server_log("Connetced to", addr)
+
+    game_id, name = pickle.loads(conn.recv(package_size))
+    print(game_id, name)
+    if isinstance(game_id, str) and isinstance(name, str):
+        connect_client(game_id, name, conn)
+
+    elif isinstance(game_id, str):
+        if game_id in active_games:
+            server_log("Sending status in ", game_id)
+            conn.sendall(pickle.dumps(({game_id: active_games[game_id]}, None)))
+        else:
+            server_log("Sending active games")
+            conn.sendall(pickle.dumps((active_games, None)))

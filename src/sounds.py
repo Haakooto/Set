@@ -5,7 +5,7 @@ from threading import Thread
 
 def play(file):
     def do(file):
-        wave_obj = sa.WaveObject.from_wave_file("../sounds/" + file)
+        wave_obj = sa.WaveObject.from_wave_file("sounds/" + file)
         play_obj = wave_obj.play()
         play_obj.wait_done()
 
