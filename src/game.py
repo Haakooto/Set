@@ -100,7 +100,7 @@ class Game:
         for ijk in combinations(range(15), 3):
             if None in [self.active[n] for n in ijk]:
                 continue
-            elif self.validate_set(ijk):
+            if self.validate_set(ijk):
                 if help:
                     return ijk
                 else:

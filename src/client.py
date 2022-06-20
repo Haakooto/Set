@@ -32,8 +32,8 @@ class Client:
                 if self.g in self.S.active_games:
                     if data:
                         if data == "set_on_board?":  # cheat
-                            pkg = "NO CHEATING ALLOWED!"
-                            # pkg = game.set_on_board(help=True)
+                            # pkg = "NO CHEATING ALLOWED!"
+                            pkg = game["game"].set_on_board(help=True)
 
                         elif data == "no_set_on_board":  # client claim no set
                             pkg = not game["game"].set_on_board(check=True)

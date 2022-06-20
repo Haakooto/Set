@@ -52,6 +52,7 @@ class NetworkManager:
                 if ret[0] == "finish":
                     self.player.call_winner(ret[2])
                     self.player.active = [Card(*[int(i) for i in id]) if id is not None else None for id in ret[1]]
+                    self.player.draw()
                     self.client.close()
                     return None
 
