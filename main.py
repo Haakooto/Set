@@ -50,24 +50,12 @@ def mouse_click_event(event):
     Me.update()
 
 
-def on_move_event(event):
-    # Me.update()
-    pass
-
-
 def key_press_event(event):
-    if event.key == "h":  # cheat
-        Me.get_if_set_on_board()
-    if event.key == "r":
-        print("Responsive")
-    if event.key == "q":
-        Me.finish()
-    if event.key == "g":
-        # reserved for testing
-        pass
-    if event.key == "j":
-        # reserved for autoclicker
-        pass
+    if   event.key == "h": Me.get_if_set_on_board()  # cheating
+    elif event.key == "r": print("Responsive")
+    elif event.key == "q": Me.finish()
+    elif event.key == "g": pass  # reserved for testing
+    elif event.key == "j": pass  # reserved for autoclicker
     Me.update()
 
 
@@ -86,10 +74,9 @@ plt.subplots_adjust(left=0.01,
                     hspace=0.1)
 
 fig.canvas.mpl_connect("button_press_event", mouse_click_event)
-fig.canvas.mpl_connect("motion_notify_event", on_move_event)
 fig.canvas.mpl_connect("key_press_event", key_press_event)
 
-if name == "Observer":
+if name == "Observer":  # ! not implemented
     Me = Observer(axs, server, port, name, gameid)
 else:
     Me = Player(axs, server, port, name, gameid)

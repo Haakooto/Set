@@ -25,45 +25,45 @@ class Client:
     def loop(self):
         game = self.S.active_games[self.g]
         while self.keep_running:
-            pkg = None
-            data = None
+            request = None  # what player sends server
+            result = None   # what server replies
             try:
-                data = pickle.loads(self.c.recv(self.S.ps))
+                request = pickle.loads(self.c.recv(self.S.ps))
                 if self.g in self.S.active_games:
-                    if data:
-                        if data == "set_on_board?":  # cheat
-                            pkg = "NO CHEATING ALLOWED!"
-                            # pkg = game["game"].set_on_board(help=True)
+                    if request:
+                        if request == "set_on_board?":  # cheat
+                            # result = "NO CHEATING ALLOWED!"
+                            result = game["game"].set_on_board(help=True)
 
-                        elif data == "no_set_on_board":  # client claim no set
-                            pkg = not game["game"].set_on_board(check=True)
-                            if pkg:
+                        elif request == "no_set_on_board":  # client claim no set
+                            result = not game["game"].set_on_board(check=True)
+                            if result:
                                 game["players"][self.n] += 1
                             else:
                                 game["players"][self.n] -= 1
 
-                        elif data == "start":
+                        elif request == "start":  # command to start
                             game["timer"] = time.time()
-                            pkg = game["game"].start()
+                            result = game["game"].start()
 
-                        elif data == "started?":
-                            pkg = game["game"].started
+                        elif request == "started?":  # query if game started
+                            result = game["game"].started
 
-                        elif data == "gimme_news":
+                        elif request == "gimme_news":  # general asking for info. Called about every second
                             if not game["game"].game_over:
-                                pkg = (game["game"].remaining(), game["game"].get_active_ids(), game["players"], game["game"].other_msg)
+                                result = (game["game"].remaining(), game["game"].get_active_ids(), game["players"], game["game"].other_msg)
                             else:
-                                pkg = ["finish", game["game"].get_active_ids(), time.time() - game["timer"]]
+                                result = ["finish", game["game"].get_active_ids(), time.time() - game["timer"]]
                                 self.keep_running = False
 
-                        elif isinstance(data, list):
-                            assert len(data) == 3
-                            pkg = game["game"].validate_set(data, player=True)
-                            if pkg:
+                        elif isinstance(request, list):  # player (maybe) found a set
+                            assert len(request) == 3
+                            result = game["game"].validate_set(request, player=True)
+                            if result:
                                 game["players"][self.n] += 1
                             else:
                                 game["players"][self.n] -= 1
-                        self.c.sendall(pickle.dumps(pkg))
+                        self.c.sendall(pickle.dumps(result))
                     else:
                         break
                 else:

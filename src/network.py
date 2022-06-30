@@ -3,10 +3,6 @@ import pickle
 from threading import Thread
 import time
 from .card import Card
-from pynput.keyboard import Controller
-import threading
-import subprocess
-import time
 
 
 class NetworkManager:
@@ -39,15 +35,12 @@ class NetworkManager:
 
     def send(self, data):
         """
-        Every time player sends data, also recieve and return this to player
         """
         try:
             self.client.send(pickle.dumps(data))
             ret = self.client.recv(self.packet_size)
             if ret:
                 ret = pickle.loads(ret)
-            if ret == "byebye":
-                self.player.AU.halt()
             if isinstance(ret, list):
                 if ret[0] == "finish":
                     self.player.call_winner(ret[2])
@@ -68,6 +61,9 @@ class NetworkManager:
 
 
 class AutoUpdate:
+    """
+    Automatically interacts with game to trigger updates by calling key_press_event()
+    """
     def __init__(self, player, kpe):
         self.key = "j"
         self.rate = 1  # refresh rate

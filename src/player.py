@@ -111,6 +111,7 @@ class Player:
                     self.started = self.NM.send("start")
                 elif self.NM.send("no_set_on_board"):  # claim no sets are left on board
                     print("You have successfully found that there is no set on the current board.\nPoint given!")
+                    sounds.blue_card_point()
                 else:
                     print("There is still at least one set on the board.\nPenalty given!")
                     sounds.nelson()
@@ -123,6 +124,7 @@ class Player:
             if len(self.clicked) == 3:
                 if self.NM.send(self.clicked):
                     print("That was a Set.\nPoint given!")
+                    sounds.point()
                 else:
                     print("That was NOT a Set.\nPenalty given!")
                     sounds.nelson()

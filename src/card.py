@@ -44,7 +44,7 @@ class Card(DrawingArea):
                 (Path.LINETO, [0.5, 0.4]),
                 (Path.LINETO, [0.85, 0.5]),
                 (Path.LINETO, [0.5, 0.6]),
-            ]))[::-1] 
+            ]))[::-1]
             ))
     Arrow = Patch(Path(
         *list(zip(*[  # Can make any shape, just set coords in unit axes
@@ -192,7 +192,7 @@ class Card(DrawingArea):
 
     @staticmethod
     def id_list(deck):
-        """ Convert list of Card to list if id (compression) """
+        """ Convert list of Card to list of ids, for compression """
         return [card.id for card in deck]
 
 

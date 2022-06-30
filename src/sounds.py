@@ -17,6 +17,11 @@ def nelson(prob=0.05):
     if np.random.random() < prob:
         play("haha.wav")
 
+def point():
+    play("point.wav")
+
+def blue_card_point():
+    play("super_point.wav")
 
 if __name__ == "__main__":
     nelson()

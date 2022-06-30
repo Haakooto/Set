@@ -74,29 +74,33 @@ class Game:
                 self.extra = False
 
     def validate_set(self, idxs, player=False):
-        # check if cards at given indices form set
-        # Is called to check if set even on board, or if player clicks 3 cards.
-        # If called by player, then replace cards if they form set
+        """
+        check if cards at given indices form set
+        Is called to check if set even on board, or if player clicks 3 cards.
+        If called by player, then replace cards if they form set
+        """
         a, b, c = [self.deck[self.active[i]] for i in idxs]
         valid = a.form_set(b, c)
         if valid and player:
             for n in idxs:
                 self.add_card(n)
             self.move()
-            self.end_game()
+            self.end_game()  # check if criteria for ending is met
         return valid
 
     def end_game(self):
-        if self.used_cards is None:
+        if self.used_cards is None:  # all cards have been put on board, and no set remaining
             if not self.set_on_board():
                 self.game_over = True
-        elif self.extra and not self.set_on_board():
+        elif self.extra and not self.set_on_board():  # no set on board, even with extra cards
             self.game_over = True
 
     def set_on_board(self, check=False, help=False):
-        # loop through every combinatin of cards on board to determine if there's at leat 1 set
-        # check=True if deck is clicked, climing there are no sets on board, in which case extra are added
-        # help is debug-function, player asking for help
+        """
+        loop through every combinatin of cards on board to determine if there's at leat 1 set
+        check=True if deck is clicked, climing there are no sets on board, in which case extra are added
+        help is debug-function, player asking for help
+        """
         for ijk in combinations(range(15), 3):
             if None in [self.active[n] for n in ijk]:
                 continue
@@ -106,8 +110,8 @@ class Game:
                 else:
                     return True
         if check:  # player click in deck
-            if self.extra: # if true, would end game. Handled by end_game()
-                self.other_msg = ""
+            if self.extra: # ? if true, would end game. Handled by end_game()
+                self.other_msg = ""  # not sure what this was supposed to do
             else:
                 self.add_extra()
         return False
