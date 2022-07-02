@@ -1,6 +1,6 @@
 import socket
 import pickle
-from threading import Thread
+import threading
 import time
 from .card import Card
 
@@ -64,13 +64,15 @@ class AutoUpdate:
     """
     Automatically interacts with game to trigger updates by calling key_press_event()
     """
-    def __init__(self, player, kpe):
+    def __init__(self, player, kpe):  # kpe: key_press_event
         self.key = "j"
-        self.rate = 1  # refresh rate
+        self.rate = .1  # refresh rate
         self.player = player
         self.player.AU = self
 
-        self.updater = Thread(target=self.update, args=(kpe,))
+        # threading.excepthook = lambda arg: print(f"the thing happened: {arg.exc_value}")
+
+        self.updater = threading.Thread(target=self.update, args=(kpe,))
         self.updater.start()
 
     def update(self, kpe):
