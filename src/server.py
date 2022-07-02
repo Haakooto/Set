@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 
 from game import Game
-from client import Client
+from client_handler import ClientHandler
 
 ##############################
 # Server file. Hosts and connects players to games
@@ -14,7 +14,7 @@ from client import Client
 Server listens for connection requests via socket
 Checks if desired game is live, if not starts it
 Checks if desired name is available, if not gives a new one.
-Send player off to a threaded loop, Client, that lets many player interact with game simultainiously
+Send player off to a threaded loop, ClientHandler, that lets many player interact with game simultainiously
 """
 
 cmd = sys.argv[1:]
@@ -97,7 +97,7 @@ class Server:
             (name_taken, name),
         )
         conn.sendall(pickle.dumps(pkg))
-        Client(self, conn, addr, name, game_id)  # start threaded loop to keep interacting with player
+        ClientHandler(self, conn, addr, name, game_id)  # start threaded loop to keep interacting with player
 
     def disconnect(self, client):
         self.log(f"Lost connection to '{client.n}' in '{client.g}'")
