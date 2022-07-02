@@ -1,11 +1,13 @@
 import matplotlib as mpl
 from matplotlib.offsetbox import AnchoredText
+from matplotlib.patches import Circle
 from datetime import timedelta
 from time import time
 
 from .network import NetworkManager
 from .card import Card, AxBorder
 import src.sounds as sounds
+# from .final_card import test as fc_test
 
 
 class Player:
@@ -50,6 +52,7 @@ class Player:
         self.finished = False
         self.time = None
 
+        self.ticker_right = False
         self.numerate(self.numerator)  # Place '81' on deck before game starts
 
     def __str__(self):
@@ -88,6 +91,7 @@ class Player:
             news = self.NM.send("gimme_news")
             if news is not None:
                 numerator, cards, table, other_msg = news
+                # numerator, cards, table, final_card_active, other_msg = news
                 if numerator is not None:
                     self.numerator = numerator
                 self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
@@ -188,7 +192,7 @@ class Player:
         # Say how many cards left in deck
         ax = self.axs[-1]
         for child in ax.get_children():
-            if isinstance(child, AnchoredText):
+            if isinstance(child, (AnchoredText, Circle)):
                 child.remove()
         at = AnchoredText(
             str(N),
@@ -197,6 +201,11 @@ class Player:
             loc="center",
         )
         ax.add_artist(at)
+
+        # have a ticker to indicate how often redraw happens
+        ticker = Circle((0.1 + 0.05 * self.ticker_right, 0.95), radius=0.005, color="red", fill=True)
+        self.ticker_right = not self.ticker_right
+        ax.add_artist(ticker)
 
     def get_if_set_on_board(self):
         if self.started:
@@ -214,6 +223,9 @@ class Player:
     def finish(self):
         self.finished = True
         self.NM.client.close()
+
+    def test_ax(self):
+        fc_test()
 
 # TODO
 class Observer(Player):
