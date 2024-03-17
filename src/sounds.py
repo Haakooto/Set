@@ -1,9 +1,10 @@
 import numpy as np
-import simpleaudio as sa
+# import simpleaudio as sa
 from threading import Thread
 
 
 def play(file):
+    return
     def do(file):
         wave_obj = sa.WaveObject.from_wave_file("./sounds/" + file)
         play_obj = wave_obj.play()
@@ -14,6 +15,7 @@ def play(file):
 
 
 def nelson(prob=0.05):
+    return
     if np.random.random() < prob:
         play("haha.wav")
 

@@ -47,15 +47,15 @@ def mouse_click_event(event):
     for i, ax in enumerate(axs):
         if ax.contains(event)[0]:  # if click on axes
             Me.click(i)
-    Me.update()
 
 
 def key_press_event(event):
-    if   event.key == "h": Me.get_if_set_on_board()  # cheating
+    if event.key == "h": Me.get_if_set_on_board()  # cheating
     elif event.key == "r": print("Responsive")
     elif event.key == "q": Me.finish()
     elif event.key == "g": pass  # reserved for testing
     elif event.key == "j": pass  # reserved for autoclicker
+    elif event.key == "a": Me.test_ax()
     Me.update()
 
 
@@ -80,6 +80,7 @@ if name == "Observer":  # ! not implemented
     Me = Observer(axs, server, port, name, gameid)
 else:
     Me = Player(axs, server, port, name, gameid)
+
 Me.update()
 AutoUpdate(Me, key_press_event)
 

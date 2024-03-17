@@ -20,6 +20,11 @@ class Game:
         self.other_msg = None
         self.extra = False
         self.game_over = False
+        self.final_card_idx = None
+        if False:  # final_card_game_mode
+            self.final_card_target = 79
+        else:
+            self.final_card_target = 99  # dummy number
 
     def __str__(self):
         return str(self.id)
@@ -53,7 +58,14 @@ class Game:
         """
         if sum([j is not None for j in self.active]) <= 12 or extra:
             self.active[i] = self.used_cards
-            if self.used_cards == 80:
+            if self.used_cards == self.final_card_target and not extra:  # if final_card is used, is 79, otherwise is something else
+                self.final_card_idx = i
+
+            # explicitly adding case to not deal with when the final card if a extra card, just simply skip feature.
+            elif self.used_cards == self.final_card_target and extra:
+                self.used_cards = None
+
+            elif self.used_cards == 80:
                 self.used_cards = None
             elif self.used_cards is not None:
                 self.used_cards += 1
@@ -110,8 +122,19 @@ class Game:
                 else:
                     return True
         if check:  # player click in deck
-            if self.extra: # ? if true, would end game. Handled by end_game()
+            if self.extra:  # ? if true, would end game. Handled by end_game()
                 self.other_msg = ""  # not sure what this was supposed to do
             else:
                 self.add_extra()
         return False
+
+    def validate_final_card(self, id):
+        correct = (id == self.deck[-1].id)
+        if correct:
+            self.uncover_final_card()
+        return correct
+
+    def uncover_final_card(self):
+        self.used_cards += 1
+        self.add_card(self.final_card_idx)
+        self.final_card_idx = None

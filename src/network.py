@@ -66,7 +66,7 @@ class AutoUpdate:
     """
     def __init__(self, player, kpe):  # kpe: key_press_event
         self.key = "j"
-        self.rate = .1  # refresh rate
+        self.rate = 1  # refresh rate
         self.player = player
         self.player.AU = self
 

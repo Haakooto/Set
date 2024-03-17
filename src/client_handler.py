@@ -22,15 +22,6 @@ class ClientHandler:
     def __hash__(self):
         return hash(self.n + self.g + self.a)
 
-    def point(self, game, good):
-        """
-        Give or take a point from player, if result is good or not
-        """
-        if good:
-            game["players"][self.n] += 1
-        else:
-            game["players"][self.n] -= 1
-
     def loop(self):
         game = self.S.active_games[self.g]
         while self.keep_running:
@@ -46,11 +37,7 @@ class ClientHandler:
 
                         elif request == "no_set_on_board":  # client claim no set
                             result = not game["game"].set_on_board(check=True)
-                            self.point(game, result)
-                            # if result:
-                            #     game["players"][self.n] += 1
-                            # else:
-                            #     game["players"][self.n] -= 1
+                            game["players"][self.n] -= 1 - 2 * result
 
                         elif request == "start":  # command to start
                             game["timer"] = time.time()
@@ -64,7 +51,7 @@ class ClientHandler:
                                 result = (game["game"].remaining(),
                                           game["game"].get_active_ids(),
                                           game["players"],
-                                          game["game"].final_card_active,
+                                          game["game"].final_card_idx,
                                           game["game"].other_msg,
                                           )
                             else:
@@ -77,21 +64,13 @@ class ClientHandler:
                         elif isinstance(request, list):  # player (maybe) found a set
                             assert len(request) == 3
                             result = game["game"].validate_set(request, player=True)
-                            self.point(game, result)
-                            # if result:
-                            #     game["players"][self.n] += 1
-                            # else:
-                            #     game["players"][self.n] -= 1
+                            game["players"][self.n] -= 1 - 2 * result
 
                         elif isinstance(request, int):  # player guessing final card
                             id = str(request)
                             assert len(id) == 4  # int must be 4 digits long
                             result = game["game"].validate_final_card(id)
-                            self.point(game, result)
-                            # if result:
-                            #     game["players"][self.n] += 1
-                            # else:
-                            #     game["players"][self.n] -= 1
+                            game["players"][self.n] -= 1 - 2 * result
 
                         self.c.sendall(pickle.dumps(result))
                     else:

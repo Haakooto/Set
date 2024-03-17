@@ -7,7 +7,7 @@ from time import time
 from .network import NetworkManager
 from .card import Card, AxBorder
 import src.sounds as sounds
-# from .final_card import test as fc_test
+from .final_card import Final_Card
 
 
 class Player:
@@ -55,6 +55,8 @@ class Player:
         self.ticker_right = False
         self.numerate(self.numerator)  # Place '81' on deck before game starts
 
+        self.FC = Final_Card(self)
+
     def __str__(self):
         return f"Player '{self.name}' in game '{self.game}'"
 
@@ -90,18 +92,27 @@ class Player:
         elif not self.finished:  # recieve new data, print leaderboard and draw cards on board
             news = self.NM.send("gimme_news")
             if news is not None:
-                numerator, cards, table, other_msg = news
-                # numerator, cards, table, final_card_active, other_msg = news
-                if numerator is not None:
-                    self.numerator = numerator
-                self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
-                self.draw()
-                table = {i: table[i] for i in sorted(table, key=lambda x: table[x])[::-1]}
-                if table != self.table:
-                    self.table = table
-                    self.print()
-                if other_msg is not None:
-                    print(other_msg)
+                numerator, cards, table, final_card_idx, other_msg = news
+
+                if self.FC.active:
+                    if final_card_idx is None:
+                        self.FC.end()
+                    self.FC.draw()
+                else:
+                    if final_card_idx is not None:
+                        self.FC.activate(final_card_idx)
+
+                    else:  # Normal game mode
+                        if numerator is not None:
+                            self.numerator = numerator
+                        self.active = [Card(*[int(i) for i in id]) if id is not None else None for id in cards]
+                        self.draw()
+                        table = {i: table[i] for i in sorted(table, key=lambda x: table[x])[::-1]}
+                        if table != self.table:
+                            self.table = table
+                            self.print()
+                        if other_msg is not None:
+                            print(other_msg)
         else:
             self.draw()
 
@@ -109,7 +120,7 @@ class Player:
         """
         called when player clicks card
         """
-        if not self.finished:
+        if not self.FC.active:
             if i == 15:
                 if not self.started:  # Start game by clicking deck
                     self.started = self.NM.send("start")
@@ -127,17 +138,21 @@ class Player:
                     self.clicked.append(i)
             if len(self.clicked) == 3:
                 if self.NM.send(self.clicked):
-                    print("That was a Set.\nPoint given!")
+                    print("Correct! That was a Set.\nPoint given!")
                     sounds.point()
                 else:
-                    print("That was NOT a Set.\nPenalty given!")
+                    print("Wrong! That was NOT a Set.\nPenalty given!")
                     sounds.nelson()
                 self.clicked = []
         else:
-            if i in self.clicked:
-                self.clicked.remove(i)
-            else:
-                self.clicked.append(i)
+            if i == self.FC.idx:
+                if self.FC.submit():
+                    print("Congrats, you have corretly determined the final card.\nPoint given!")
+                    sounds.blue_card_point()
+                else:
+                    print("Sorry, that is not the true final card.\nPenalty given!")
+                    sounds.nelson()
+
         self.update()
 
     def draw(self):  # draw the board (place card on board)
@@ -146,7 +161,6 @@ class Player:
                 self.get_border(i).set_edgecolor("white")
                 if (card_ := self.get_card(i)) is not None:
                     card_.remove()
-
             else:
                 if (old := self.get_card(i)) is not None:
                     if not old.is_same(card):
